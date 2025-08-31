@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search & Discovery Portal - Lucknow Bus Tracker</title>
+    <link rel="stylesheet" href="../css/main.css" />
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Flucknowbu5210back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background font-inter">
+    <!-- Header Navigation -->
+    <header class="bg-surface border-b border-border shadow-sm relative z-50">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3">
+                    <button id="menuToggle" class="lg:hidden touch-target p-2 -ml-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6c0-.5.5-1 2-1h8c1.5 0 2 .5 2 1v5z"/>
+                            </svg>
+                        </div>
+                        <div class="hidden sm:block">
+                            <h1 class="text-lg font-semibold text-text-primary">Lucknow Bus Tracker</h1>
+                            <p class="text-xs text-text-secondary">Search & Discovery Portal</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-2">
+                    <!-- Voice Search -->
+                    <button id="voiceSearchBtn" class="touch-target p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Language Toggle -->
+                    <button class="touch-target px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth border border-border rounded-lg">
+                        EN | हिं
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="touch-target p-2 text-text-secondary hover:text-text-primary transition-smooth relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-error rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Search Bar -->
+            <div class="mt-4">
+                <div class="relative">
+                    <input type="text" id="mainSearchInput" placeholder="Search routes, stops, destinations..." class="input-field pl-12 pr-20 bg-background border-border-light text-lg" />
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                        <button id="clearSearchBtn" class="p-1 text-text-secondary hover:text-text-primary transition-smooth hidden">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        <button id="filterToggleBtn" class="p-1 text-text-secondary hover:text-text-primary transition-smooth">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div id="searchSuggestions" class="absolute left-4 right-4 mt-2 bg-surface border border-border rounded-lg shadow-lg z-40 hidden">
+                    <div class="p-2">
+                        <div class="text-xs text-text-secondary uppercase tracking-wide mb-2">Suggestions</div>
+                        <div class="space-y-1">
+                            <button class="w-full text-left p-2 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                                <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-sm">buses to Hazratganj</span>
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                                <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                </svg>
+                                <span class="text-sm">Route 1A</span>
+                            </button>
+                            <button class="w-full text-left p-2 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                                <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                                <span class="text-sm">GPO Chowk bus stop</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Chips -->
+            <div class="flex items-center space-x-2 mt-3 overflow-x-auto pb-1">
+                <button class="flex-shrink-0 px-3 py-1.5 bg-primary text-white text-sm rounded-full font-medium">
+                    Recent
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth">
+                    Favorites
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth">
+                    Nearby
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth">
+                    Express Routes
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden">
+        <div class="fixed left-0 top-0 h-full w-80 bg-surface shadow-lg transform -translate-x-full transition-transform duration-300" id="mobileMenuPanel">
+            <div class="p-4 border-b border-border">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-text-primary">Menu</h2>
+                    <button id="closeMenu" class="touch-target p-2 text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="live_bus_map_dashboard.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span>Live Map</span>
+                </a>
+                <a href="route_planning_journey.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                    <span>Route Planning</span>
+                </a>
+                <a href="bus_stop_information_hub.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Bus Stops</span>
+                </a>
+                <a href="search_and_discovery_portal.html" class="flex items-center space-x-3 p-3 rounded-lg bg-primary-50 text-primary font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span>Search & Discovery</span>
+                </a>
+                <a href="service_alerts_and_notifications.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Alerts & Notifications</span>
+                </a>
+                <a href="user_profile_and_preferences.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Profile & Preferences</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex h-screen">
+        <!-- Desktop Sidebar -->
+        <aside class="hidden lg:block w-80 bg-surface border-r border-border overflow-y-auto">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-text-primary mb-4">Advanced Filters</h2>
+                
+                <!-- Route Type Filter -->
+                <div class="space-y-3 mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide">Route Type</h3>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" checked class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Regular Routes</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Express Routes</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Night Services</span>
+                    </label>
+                </div>
+
+                <!-- Operating Hours -->
+                <div class="space-y-3 mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide">Operating Hours</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="hours" value="all" checked class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">All Hours</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="hours" value="current" class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Currently Running</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="hours" value="peak" class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Peak Hours Only</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Accessibility Features -->
+                <div class="space-y-3 mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide">Accessibility</h3>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Wheelchair Accessible</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Audio Announcements</span>
+                    </label>
+                </div>
+
+                <!-- Distance Filter -->
+                <div class="space-y-3 mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide">Distance from Location</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="distance" value="all" checked class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Any Distance</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="distance" value="500m" class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Within 500m</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="distance" value="1km" class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Within 1km</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Filter Actions -->
+                <div class="flex space-x-2">
+                    <button class="btn-primary flex-1 py-2 text-sm">Apply Filters</button>
+                    <button class="btn-secondary flex-1 py-2 text-sm">Reset</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Search Results Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Results Tabs -->
+            <div class="bg-surface border-b border-border px-4 py-3">
+                <div class="flex space-x-1">
+                    <button id="routesTab" class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg">
+                        Routes <span class="ml-1 text-xs opacity-75">(12)</span>
+                    </button>
+                    <button id="stopsTab" class="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth">
+                        Stops <span class="ml-1 text-xs opacity-75">(8)</span>
+                    </button>
+                    <button id="destinationsTab" class="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth">
+                        Destinations <span class="ml-1 text-xs opacity-75">(5)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Content -->
+            <div class="flex-1 overflow-y-auto">
+                <!-- Routes Results -->
+                <div id="routesContent" class="p-4">
+                    <div class="space-y-4">
+                        <!-- Route Card 1 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                                            <span class="text-white font-bold text-sm">1A</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Route 1A Express</h3>
+                                            <p class="text-sm text-text-secondary">Charbagh → Hazratganj → Aminabad</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-text-secondary">Frequency</span>
+                                            <div class="font-medium text-text-primary">Every 8 min</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Status</span>
+                                            <div class="font-medium text-success">Active</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Stops</span>
+                                            <div class="font-medium text-text-primary">15 stops</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">View Route</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Route Card 2 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                                            <span class="text-white font-bold text-sm">2B</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Route 2B</h3>
+                                            <p class="text-sm text-text-secondary">Alambagh → GPO → Hazratganj</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-text-secondary">Frequency</span>
+                                            <div class="font-medium text-text-primary">Every 12 min</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Status</span>
+                                            <div class="font-medium text-warning">Limited</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Stops</span>
+                                            <div class="font-medium text-text-primary">22 stops</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">View Route</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Route Card 3 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+                                            <span class="text-white font-bold text-sm">5C</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Route 5C Night Service</h3>
+                                            <p class="text-sm text-text-secondary">Gomti Nagar → Hazratganj → Chowk</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-text-secondary">Frequency</span>
+                                            <div class="font-medium text-text-primary">Every 20 min</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Status</span>
+                                            <div class="font-medium text-error">Inactive</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-secondary">Stops</span>
+                                            <div class="font-medium text-text-primary">18 stops</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">View Route</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stops Results -->
+                <div id="stopsContent" class="p-4 hidden">
+                    <div class="space-y-4">
+                        <!-- Stop Card 1 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Hazratganj Metro Station</h3>
+                                            <p class="text-sm text-text-secondary">250m away • Major hub</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        <span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded">1A</span>
+                                        <span class="px-2 py-1 bg-secondary-100 text-secondary text-xs font-medium rounded">2B</span>
+                                        <span class="px-2 py-1 bg-accent-100 text-accent text-xs font-medium rounded">5C</span>
+                                        <span class="px-2 py-1 bg-background text-text-secondary text-xs rounded">+3 more</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-text-secondary">Next bus:</span>
+                                        <span class="font-medium text-success ml-1">Route 1A in 2 min</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">Get Directions</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stop Card 2 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">GPO Chowk</h3>
+                                            <p class="text-sm text-text-secondary">400m away • Regular stop</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        <span class="px-2 py-1 bg-secondary-100 text-secondary text-xs font-medium rounded">2B</span>
+                                        <span class="px-2 py-1 bg-accent-100 text-accent text-xs font-medium rounded">3A</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-text-secondary">Next bus:</span>
+                                        <span class="font-medium text-warning ml-1">Route 2B in 8 min</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">Get Directions</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Destinations Results -->
+                <div id="destinationsContent" class="p-4 hidden">
+                    <div class="space-y-4">
+                        <!-- Destination Card 1 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <img src="https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Hazratganj Market" class="w-12 h-12 rounded-lg object-cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Hazratganj Market</h3>
+                                            <p class="text-sm text-text-secondary">Shopping district • 2.5 km away</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm mb-3">
+                                        <span class="text-text-secondary">Available routes:</span>
+                                        <div class="flex flex-wrap gap-2 mt-1">
+                                            <span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded">1A Express</span>
+                                            <span class="px-2 py-1 bg-secondary-100 text-secondary text-xs font-medium rounded">2B</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-text-secondary">Fastest route:</span>
+                                        <span class="font-medium text-success ml-1">Route 1A • 15 min journey</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">Plan Journey</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Destination Card 2 -->
+                        <div class="card hover:shadow-md transition-smooth cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <img src="https://images.pixabay.com/photo/2016/11/29/05/45/architecture-1867187_960_720.jpg" alt="Charbagh Railway Station" class="w-12 h-12 rounded-lg object-cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
+                                        <div>
+                                            <h3 class="font-semibold text-text-primary">Charbagh Railway Station</h3>
+                                            <p class="text-sm text-text-secondary">Transport hub • 4.2 km away</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm mb-3">
+                                        <span class="text-text-secondary">Available routes:</span>
+                                        <div class="flex flex-wrap gap-2 mt-1">
+                                            <span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded">1A Express</span>
+                                            <span class="px-2 py-1 bg-accent-100 text-accent text-xs font-medium rounded">4B</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-text-secondary">Fastest route:</span>
+                                        <span class="font-medium text-success ml-1">Route 1A • 22 min journey</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    <button class="btn-primary px-4 py-2 text-sm">Plan Journey</button>
+                                    <button class="text-text-secondary hover:text-text-primary transition-smooth">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Preview Map -->
+        <div class="hidden xl:block w-96 bg-surface border-l border-border">
+            <div class="p-4 border-b border-border">
+                <h3 class="font-semibold text-text-primary">Preview Map</h3>
+            </div>
+            <div class="h-full bg-background flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-16 h-16 text-text-secondary mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <p class="text-text-secondary">Select a route or stop to view on map</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Filter Panel -->
+    <div id="mobileFilterPanel" class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg transform translate-y-full transition-transform duration-300 z-40">
+        <div class="p-4">
+            <!-- Panel Handle -->
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-1 bg-border rounded-full"></div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-text-primary mb-4">Filters</h3>
+
+            <!-- Mobile Filter Content -->
+            <div class="space-y-4 max-h-96 overflow-y-auto">
+                <!-- Route Type -->
+                <div>
+                    <h4 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-2">Route Type</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" checked class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Regular Routes</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Express Routes</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Operating Hours -->
+                <div>
+                    <h4 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-2">Operating Hours</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="mobile-hours" value="all" checked class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">All Hours</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="mobile-hours" value="current" class="w-4 h-4 text-primary border-border focus:ring-primary-200" />
+                            <span class="text-sm text-text-primary">Currently Running</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Actions -->
+            <div class="flex space-x-2 mt-6">
+                <button class="btn-primary flex-1 py-3">Apply Filters</button>
+                <button class="btn-secondary flex-1 py-3">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Searches Panel -->
+    <div id="recentSearchesPanel" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed bottom-0 left-0 right-0 bg-surface rounded-t-2xl shadow-lg max-h-96 overflow-y-auto">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-text-primary">Recent Searches</h3>
+                    <button id="closeRecentSearches" class="touch-target p-2 text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-2">
+                    <button class="w-full text-left p-3 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-text-primary">buses to Hazratganj</span>
+                    </button>
+                    <button class="w-full text-left p-3 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-text-primary">Route 1A schedule</span>
+                    </button>
+                    <button class="w-full text-left p-3 hover:bg-background rounded-lg transition-smooth flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-text-primary">GPO Chowk bus stop</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const closeMenu = document.getElementById('closeMenu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            setTimeout(() => {
+                mobileMenuPanel.classList.remove('-translate-x-full');
+            }, 10);
+        });
+
+        closeMenu.addEventListener('click', closeMobileMenu);
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) closeMobileMenu();
+        });
+
+        function closeMobileMenu() {
+            mobileMenuPanel.classList.add('-translate-x-full');
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+            }, 300);
+        }
+
+        // Search functionality
+        const mainSearchInput = document.getElementById('mainSearchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        mainSearchInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value.length > 0) {
+                searchSuggestions.classList.remove('hidden');
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                searchSuggestions.classList.add('hidden');
+                clearSearchBtn.classList.add('hidden');
+            }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            mainSearchInput.value = '';
+            searchSuggestions.classList.add('hidden');
+            clearSearchBtn.classList.add('hidden');
+            mainSearchInput.focus();
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mainSearchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.classList.add('hidden');
+            }
+        });
+
+        // Tab functionality
+        const routesTab = document.getElementById('routesTab');
+        const stopsTab = document.getElementById('stopsTab');
+        const destinationsTab = document.getElementById('destinationsTab');
+        const routesContent = document.getElementById('routesContent');
+        const stopsContent = document.getElementById('stopsContent');
+        const destinationsContent = document.getElementById('destinationsContent');
+
+        function switchTab(activeTab, activeContent) {
+            // Reset all tabs
+            [routesTab, stopsTab, destinationsTab].forEach(tab => {
+                tab.classList.remove('bg-primary', 'text-white');
+                tab.classList.add('text-text-secondary');
+            });
+
+            // Reset all content
+            [routesContent, stopsContent, destinationsContent].forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Activate selected tab
+            activeTab.classList.add('bg-primary', 'text-white');
+            activeTab.classList.remove('text-text-secondary');
+            activeContent.classList.remove('hidden');
+        }
+
+        routesTab.addEventListener('click', () => switchTab(routesTab, routesContent));
+        stopsTab.addEventListener('click', () => switchTab(stopsTab, stopsContent));
+        destinationsTab.addEventListener('click', () => switchTab(destinationsTab, destinationsContent));
+
+        // Mobile filter panel
+        const filterToggleBtn = document.getElementById('filterToggleBtn');
+        const mobileFilterPanel = document.getElementById('mobileFilterPanel');
+
+        filterToggleBtn.addEventListener('click', () => {
+            if (window.innerWidth < 1024) {
+                mobileFilterPanel.classList.toggle('translate-y-full');
+            }
+        });
+
+        // Voice search functionality
+        const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+        
+        voiceSearchBtn.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.lang = 'en-IN';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.onstart = () => {
+                    voiceSearchBtn.classList.add('text-primary');
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    mainSearchInput.value = transcript;
+                    mainSearchInput.dispatchEvent(new Event('input'));
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                };
+
+                recognition.onend = () => {
+                    voiceSearchBtn.classList.remove('text-primary');
+                };
+
+                recognition.start();
+            } else {
+                alert('Speech recognition not supported in this browser');
+            }
+        });
+
+        // Recent searches functionality
+        const recentSearchesPanel = document.getElementById('recentSearchesPanel');
+        const closeRecentSearches = document.getElementById('closeRecentSearches');
+
+        // Show recent searches when clicking on search input (mobile)
+        mainSearchInput.addEventListener('focus', () => {
+            if (window.innerWidth < 1024 && mainSearchInput.value === '') {
+                recentSearchesPanel.classList.remove('hidden');
+            }
+        });
+
+        closeRecentSearches.addEventListener('click', () => {
+            recentSearchesPanel.classList.add('hidden');
+        });
+
+        recentSearchesPanel.addEventListener('click', (e) => {
+            if (e.target === recentSearchesPanel) {
+                recentSearchesPanel.classList.add('hidden');
+            }
+        });
+
+        // Handle recent search selection
+        document.querySelectorAll('#recentSearchesPanel button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (e.target.tagName === 'SPAN') {
+                    mainSearchInput.value = e.target.textContent;
+                    recentSearchesPanel.classList.add('hidden');
+                    mainSearchInput.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+
+        // Simulate search results update
+        function updateSearchResults(query) {
+            // This would typically make an API call
+            console.log('Searching for:', query);
+        }
+
+        // Handle suggestion clicks
+        document.querySelectorAll('#searchSuggestions button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const suggestion = e.currentTarget.querySelector('span').textContent;
+                mainSearchInput.value = suggestion;
+                searchSuggestions.classList.add('hidden');
+                updateSearchResults(suggestion);
+            });
+        });
+
+        // Handle filter panel drag (basic implementation)
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        mobileFilterPanel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+        });
+
+        mobileFilterPanel.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            
+            if (diff > 0) {
+                mobileFilterPanel.style.transform = `translateY(${diff}px)`;
+            }
+        });
+
+        mobileFilterPanel.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const diff = currentY - startY;
+            if (diff > 100) {
+                mobileFilterPanel.classList.add('translate-y-full');
+            }
+            mobileFilterPanel.style.transform = '';
+        });
+    </script>
+</body>
+</html>

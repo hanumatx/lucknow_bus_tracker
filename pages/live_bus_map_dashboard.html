@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Bus Map Dashboard - Lucknow Bus Tracker</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Flucknowbu5210back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background font-inter">
+    <!-- Header Navigation -->
+    <header class="bg-surface border-b border-border shadow-sm relative z-50">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3">
+                    <button id="menuToggle" class="lg:hidden touch-target p-2 -ml-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6c0-.5.5-1 2-1h8c1.5 0 2 .5 2 1v5z"/>
+                            </svg>
+                        </div>
+                        <div class="hidden sm:block">
+                            <h1 class="text-lg font-semibold text-text-primary">Lucknow Bus Tracker</h1>
+                            <p class="text-xs text-text-secondary">Live Map Dashboard</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Search Bar with Bus Number Search -->
+                <div class="flex-1 max-w-md mx-4 hidden md:block">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search bus numbers, routes, stops..." class="input-field pl-10 pr-12 bg-background border-border-light" />
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                            <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <button id="searchButton" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-primary hover:bg-primary-50 rounded-md transition-smooth">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
+                        <!-- Search Suggestions Dropdown -->
+                        <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-border rounded-lg mt-1 shadow-lg z-10 hidden max-h-60 overflow-y-auto">
+                            <div class="p-2 text-sm text-text-secondary border-b border-border">Search Results</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-2">
+                    <!-- User Profile or Login -->
+                    <div id="userSection">
+                        <div id="loggedOutState" class="flex items-center space-x-2">
+                            <a href="user_login.html" class="touch-target px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth border border-border rounded-lg">
+                                Login
+                            </a>
+                        </div>
+                        <div id="loggedInState" class="hidden flex items-center space-x-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                    <span id="userInitials" class="text-sm font-medium text-white">U</span>
+                                </div>
+                                <div class="hidden sm:block">
+                                    <p id="userName" class="text-sm font-medium text-text-primary">User</p>
+                                    <p class="text-xs text-text-secondary">Welcome back</p>
+                                </div>
+                            </div>
+                            <button id="logoutButton" class="touch-target p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Language Toggle -->
+                    <button class="touch-target px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth border border-border rounded-lg">
+                        EN | हिं
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="touch-target p-2 text-text-secondary hover:text-text-primary transition-smooth relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-error rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search -->
+            <div class="mt-3 md:hidden">
+                <div class="relative">
+                    <input type="text" id="mobileSearchInput" placeholder="Search bus numbers, routes, stops..." class="input-field pl-10 pr-12 bg-background border-border-light" />
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                        <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <button id="mobileSearchButton" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-primary hover:bg-primary-50 rounded-md transition-smooth">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enhanced Filter Chips with Random Bus Numbers -->
+            <div class="flex items-center space-x-2 mt-3 overflow-x-auto pb-1">
+                <button class="flex-shrink-0 px-3 py-1.5 bg-primary text-white text-sm rounded-full font-medium filter-chip" data-filter="all">
+                    All Routes
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth filter-chip" data-filter="nearby">
+                    Nearby Stops
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth filter-chip" data-filter="LKW001">
+                    Bus LKW001
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth filter-chip" data-filter="LKW045">
+                    Bus LKW045
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth filter-chip" data-filter="LKW127">
+                    Bus LKW127
+                </button>
+                <button class="flex-shrink-0 px-3 py-1.5 bg-background text-text-secondary text-sm rounded-full border border-border hover:bg-surface transition-smooth filter-chip" data-filter="express">
+                    Express
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden">
+        <div class="fixed left-0 top-0 h-full w-80 bg-surface shadow-lg transform -translate-x-full transition-transform duration-300" id="mobileMenuPanel">
+            <div class="p-4 border-b border-border">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-text-primary">Menu</h2>
+                    <button id="closeMenu" class="touch-target p-2 text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="live_bus_map_dashboard.html" class="flex items-center space-x-3 p-3 rounded-lg bg-primary-50 text-primary font-medium">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span>Live Map</span>
+                </a>
+                <a href="route_planning_journey.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                    <span>Route Planning</span>
+                </a>
+                <a href="bus_stop_information_hub.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Bus Stops</span>
+                </a>
+                <a href="search_and_discovery_portal.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span>Search & Discovery</span>
+                </a>
+                <a href="service_alerts_and_notifications.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Alerts & Notifications</span>
+                </a>
+                <a href="user_profile_and_preferences.html" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Profile & Preferences</span>
+                </a>
+                <div id="mobileUserActions" class="hidden border-t border-border pt-4 mt-4">
+                    <button id="mobileLogoutButton" class="flex items-center space-x-3 p-3 rounded-lg text-text-secondary hover:bg-background transition-smooth w-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex h-screen">
+        <!-- Desktop Sidebar -->
+        <aside class="hidden lg:block w-80 bg-surface border-r border-border overflow-y-auto">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-text-primary mb-4">Map Controls</h2>
+                
+                <!-- Enhanced Search Results -->
+                <div id="searchResults" class="mb-6 hidden">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-3">Search Results</h3>
+                    <div id="searchResultsList" class="space-y-2">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Layer Controls -->
+                <div class="space-y-3 mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide">Map Layers</h3>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" checked class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Bus Routes</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" checked class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Bus Stops</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" checked class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                        <span class="text-sm text-text-primary">Live Buses</span>
+                    </label>
+                </div>
+
+                <!-- Enhanced Quick Stats -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="card p-3">
+                        <div class="text-2xl font-bold text-primary" id="activeBusCount">186</div>
+                        <div class="text-xs text-text-secondary">Active Buses</div>
+                    </div>
+                    <div class="card p-3">
+                        <div class="text-2xl font-bold text-secondary" id="totalRoutes">67</div>
+                        <div class="text-xs text-text-secondary">Total Routes</div>
+                    </div>
+                </div>
+
+                <!-- Random Bus Numbers Quick Access -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-3">Quick Bus Access</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW001">LKW001</button>
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW023">LKW023</button>
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW045">LKW045</button>
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW067">LKW067</button>
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW089">LKW089</button>
+                        <button class="quick-bus-btn p-2 text-xs font-medium bg-primary-50 text-primary rounded hover:bg-primary-100 transition-smooth" data-bus="LKW112">LKW112</button>
+                    </div>
+                </div>
+
+                <!-- Selected Bus/Stop Info -->
+                <div id="selectedInfo" class="card p-4 hidden">
+                    <h3 class="font-semibold text-text-primary mb-3">Bus Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-text-secondary">Bus Number</span>
+                            <span class="text-sm font-medium text-text-primary">LKW045</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-text-secondary">Route</span>
+                            <span class="text-sm font-medium text-text-primary">1A Express</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-text-secondary">Occupancy</span>
+                            <span class="text-sm font-medium text-warning">Medium</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-text-secondary">Next Stop</span>
+                            <span class="text-sm font-medium text-text-primary">Hazratganj</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-text-secondary">ETA</span>
+                            <span class="text-sm font-medium text-success">3 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nearby Stops -->
+                <div class="mt-6">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-3">Nearby Stops</h3>
+                    <div class="space-y-2">
+                        <div class="card p-3 cursor-pointer hover:bg-primary-50 transition-smooth">
+                            <div class="font-medium text-text-primary">Hazratganj Metro</div>
+                            <div class="text-sm text-text-secondary">250m away • Buses: LKW001, LKW045, LKW127</div>
+                            <div class="text-xs text-success mt-1">Next bus: 2 min</div>
+                        </div>
+                        <div class="card p-3 cursor-pointer hover:bg-primary-50 transition-smooth">
+                            <div class="font-medium text-text-primary">GPO Chowk</div>
+                            <div class="text-sm text-text-secondary">400m away • Buses: LKW023, LKW067</div>
+                            <div class="text-xs text-warning mt-1">Next bus: 8 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Map Container -->
+        <div class="flex-1 relative">
+            <div id="map" class="w-full h-full"></div>
+            
+            <!-- Map Controls -->
+            <div class="absolute top-4 right-4 flex flex-col space-y-2 z-30">
+                <button id="locateBtn" class="touch-target bg-surface border border-border rounded-lg shadow-sm p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+                <button id="refreshBtn" class="touch-target bg-surface border border-border rounded-lg shadow-sm p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-surface border border-border rounded-lg shadow-sm px-4 py-2 z-30 hidden">
+                <div class="flex items-center space-x-2">
+                    <div class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                    <span class="text-sm text-text-secondary">Updating bus locations...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Panel (Mobile) -->
+    <div id="bottomPanel" class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg transform translate-y-full transition-transform duration-300 z-40">
+        <div class="p-4">
+            <!-- Panel Handle -->
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-1 bg-border rounded-full"></div>
+            </div>
+
+            <!-- Panel Content -->
+            <div id="panelContent">
+                <div class="text-center py-8">
+                    <svg class="w-12 h-12 text-text-secondary mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <p class="text-text-secondary">Tap on buses or stops to view details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (Mobile) -->
+    <button id="fabLocation" class="lg:hidden fixed bottom-20 right-4 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center z-30 transition-spring hover:scale-105">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+    </button>
+
+    <script>
+        // Initialize map centered on Lucknow
+        const map = L.map('map').setView([26.8467, 80.9462], 12);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Enhanced random bus numbers generator
+        function generateRandomBusNumber() {
+            const prefixes = ['LKW', 'UP32', 'BR01', 'DL1P', 'HR38'];
+            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const randomNumber = Math.floor(Math.random() * 999) + 1;
+            return randomPrefix + randomNumber.toString().padStart(3, '0');
+        }
+
+        // Generate comprehensive bus fleet with random numbers
+        const generateBusFleet = () => {
+            const fleet = [];
+            for (let i = 0; i < 50; i++) {
+                fleet.push(generateRandomBusNumber());
+            }
+            return [...new Set(fleet)]; // Remove duplicates
+        };
+
+        const busFleet = generateBusFleet();
+
+        // Comprehensive bus routes data with enhanced random bus numbers
+        const busRoutes = [
+            {
+                id: 'route1A',
+                name: 'Route 1A - Jankipuram to Alambagh',
+                color: '#8B5CF6',
+                buses: ['LKW001', 'LKW045', 'LKW127', 'UP32078', 'BR01234'],
+                coordinates: [
+                    [26.9267, 80.9162], [26.9067, 80.9262], [26.8867, 80.9362], 
+                    [26.8667, 80.9462], [26.8467, 80.9462], [26.8267, 80.9362], [26.8067, 80.9262]
+                ]
+            },
+            {
+                id: 'route2B',
+                name: 'Route 2B - Gomti Nagar to Mahanagar',
+                color: '#3B82F6',
+                buses: ['LKW023', 'LKW067', 'LKW145', 'UP32156', 'DL1P789'],
+                coordinates: [
+                    [26.8567, 81.0162], [26.8667, 80.9862], [26.8767, 80.9662],
+                    [26.8867, 80.9462], [26.8967, 80.9262], [26.9067, 80.9062]
+                ]
+            },
+            {
+                id: 'route3C',
+                name: 'Route 3C - Chinhat to Chowk',
+                color: '#10B981',
+                buses: ['LKW089', 'LKW112', 'LKW178', 'HR38345', 'UP32567'],
+                coordinates: [
+                    [26.9167, 81.0462], [26.8967, 81.0162], [26.8767, 80.9962],
+                    [26.8567, 80.9762], [26.8367, 80.9562], [26.8167, 80.9362]
+                ]
+            },
+            {
+                id: 'route4D',
+                name: 'Route 4D - Rajaji Puram to Cantonment',
+                color: '#F59E0B',
+                buses: ['LKW134', 'LKW189', 'LKW221', 'BR01456', 'DL1P234'],
+                coordinates: [
+                    [26.8167, 80.8962], [26.8267, 80.9162], [26.8367, 80.9362],
+                    [26.8467, 80.9562], [26.8567, 80.9762], [26.8667, 80.9962]
+                ]
+            },
+            {
+                id: 'route5E',
+                name: 'Route 5E - Ahmamau to Khadra',
+                color: '#EF4444',
+                buses: ['LKW156', 'LKW201', 'LKW267', 'UP32678', 'HR38789'],
+                coordinates: [
+                    [26.7867, 80.9162], [26.8067, 80.9262], [26.8267, 80.9462],
+                    [26.8467, 80.9662], [26.8667, 80.9862], [26.8867, 81.0062]
+                ]
+            }
+        ];
+
+        // Enhanced bus stops with more variety
+        const busStops = [
+            { id: 1, name: 'Jankipuram Sector A', lat: 26.9267, lng: 80.9162, routes: ['1A'], buses: ['LKW001', 'LKW045'] },
+            { id: 2, name: 'Jankipuram Extension', lat: 26.9367, lng: 80.9062, routes: ['1A'], buses: ['LKW127', 'UP32078'] },
+            { id: 3, name: 'Aliganj Metro Station', lat: 26.9067, lng: 80.9262, routes: ['1A', '2B'], buses: ['LKW023', 'LKW067'] },
+            { id: 4, name: 'Aliganj Chauraha', lat: 26.9167, lng: 80.9162, routes: ['2B'], buses: ['LKW145', 'UP32156'] },
+            { id: 5, name: 'Vikas Nagar Main Road', lat: 26.8867, lng: 80.9362, routes: ['1A'], buses: ['LKW001', 'BR01234'] },
+            { id: 6, name: 'Vikas Nagar Extension', lat: 26.9067, lng: 80.9062, routes: ['2B'], buses: ['DL1P789', 'LKW023'] },
+            { id: 7, name: 'Kalyanpur Chauraha', lat: 26.8767, lng: 80.9662, routes: ['2B'], buses: ['LKW067', 'LKW145'] },
+            { id: 8, name: 'Kalyanpur West', lat: 26.8667, lng: 80.9862, routes: ['5E'], buses: ['LKW156', 'LKW201'] },
+            { id: 9, name: 'Indira Nagar Metro', lat: 26.8667, lng: 80.9462, routes: ['1A', '3C'], buses: ['LKW001', 'LKW089'] },
+            { id: 10, name: 'Indira Nagar East', lat: 26.8767, lng: 80.9962, routes: ['3C'], buses: ['LKW112', 'HR38345'] },
+            { id: 11, name: 'Mahanagar Extension', lat: 26.8867, lng: 80.9462, routes: ['2B'], buses: ['LKW023', 'UP32156'] },
+            { id: 12, name: 'Mahanagar Main Road', lat: 26.8767, lng: 80.9362, routes: ['2B'], buses: ['LKW067', 'DL1P789'] },
+            { id: 13, name: 'Hazratganj Metro', lat: 26.8467, lng: 80.9462, routes: ['1A', '4D', '5E'], buses: ['LKW001', 'LKW134', 'LKW156'] },
+            { id: 14, name: 'GPO Chowk', lat: 26.8367, lng: 80.9362, routes: ['4D'], buses: ['LKW189', 'BR01456'] },
+            { id: 15, name: 'Hasan Ganj', lat: 26.8367, lng: 80.9562, routes: ['3C'], buses: ['LKW089', 'UP32567'] },
+            { id: 16, name: 'Qaiserbagh', lat: 26.8267, lng: 80.9362, routes: ['1A'], buses: ['LKW045', 'LKW127'] },
+            { id: 17, name: 'Civil Lines Main', lat: 26.8567, lng: 80.9762, routes: ['3C', '4D'], buses: ['LKW112', 'LKW134'] },
+            { id: 18, name: 'Civil Lines Extension', lat: 26.8667, lng: 80.9662, routes: ['3C'], buses: ['LKW178', 'HR38345'] },
+            { id: 19, name: 'Gomti Nagar Metro', lat: 26.8567, lng: 81.0162, routes: ['2B'], buses: ['LKW023', 'LKW145'] },
+            { id: 20, name: 'Gomti Nagar Extension', lat: 26.8967, lng: 81.0162, routes: ['3C'], buses: ['LKW089', 'UP32567'] },
+            { id: 21, name: 'Gomti Nagar Shopping Complex', lat: 26.8467, lng: 81.0062, routes: ['2B'], buses: ['UP32156', 'DL1P789'] },
+            { id: 22, name: 'Sadat Ganj', lat: 26.8267, lng: 80.9162, routes: ['4D'], buses: ['LKW134', 'LKW221'] },
+            { id: 23, name: 'Rajaji Puram Metro', lat: 26.8167, lng: 80.8962, routes: ['4D'], buses: ['LKW189', 'BR01456'] },
+            { id: 24, name: 'Alambagh Railway Station', lat: 26.8067, lng: 80.9262, routes: ['1A', '5E'], buses: ['LKW001', 'LKW156'] },
+            { id: 25, name: 'Lucknow Cantonment', lat: 26.8667, lng: 80.9962, routes: ['4D'], buses: ['LKW221', 'DL1P234'] },
+            { id: 26, name: 'Ahmamau', lat: 26.7867, lng: 80.9162, routes: ['5E'], buses: ['LKW201', 'UP32678'] },
+            { id: 27, name: 'Chowk Bazaar', lat: 26.8167, lng: 80.9362, routes: ['3C'], buses: ['LKW178', 'HR38789'] },
+            { id: 28, name: 'Chinhat', lat: 26.9167, lng: 81.0462, routes: ['3C'], buses: ['LKW089', 'LKW112'] },
+            { id: 29, name: 'Khadra', lat: 26.8867, lng: 81.0062, routes: ['5E'], buses: ['LKW267', 'HR38789'] },
+            { id: 30, name: 'Charbagh Railway Station', lat: 26.8267, lng: 80.9462, routes: ['5E'], buses: ['LKW156', 'UP32678'] }
+        ];
+
+        // Enhanced live buses with random bus numbers
+        const liveBuses = [
+            { id: 1, busNumber: 'LKW001', route: '1A', lat: 26.8767, lng: 80.9362, occupancy: 'low', nextStop: 'Indira Nagar Metro', routeId: 'route1A', speed: 32, eta: 3 },
+            { id: 2, busNumber: 'LKW045', route: '1A', lat: 26.8467, lng: 80.9462, occupancy: 'medium', nextStop: 'Hazratganj Metro', routeId: 'route1A', speed: 28, eta: 5 },
+            { id: 3, busNumber: 'LKW023', route: '2B', lat: 26.8667, lng: 80.9862, occupancy: 'high', nextStop: 'Kalyanpur West', routeId: 'route2B', speed: 25, eta: 7 },
+            { id: 4, busNumber: 'LKW067', route: '2B', lat: 26.8767, lng: 80.9662, occupancy: 'low', nextStop: 'Mahanagar Colony', routeId: 'route2B', speed: 35, eta: 4 },
+            { id: 5, busNumber: 'LKW089', route: '3C', lat: 26.8767, lng: 80.9962, occupancy: 'medium', nextStop: 'Civil Lines', routeId: 'route3C', speed: 30, eta: 6 },
+            { id: 6, busNumber: 'LKW112', route: '3C', lat: 26.8367, lng: 80.9562, occupancy: 'low', nextStop: 'Hasan Ganj', routeId: 'route3C', speed: 33, eta: 2 },
+            { id: 7, busNumber: 'LKW134', route: '4D', lat: 26.8367, lng: 80.9362, occupancy: 'high', nextStop: 'GPO Chowk', routeId: 'route4D', speed: 22, eta: 8 },
+            { id: 8, busNumber: 'LKW189', route: '4D', lat: 26.8567, lng: 80.9762, occupancy: 'medium', nextStop: 'Civil Lines', routeId: 'route4D', speed: 29, eta: 5 },
+            { id: 9, busNumber: 'LKW156', route: '5E', lat: 26.8267, lng: 80.9462, occupancy: 'low', nextStop: 'Charbagh Station', routeId: 'route5E', speed: 31, eta: 3 },
+            { id: 10, busNumber: 'LKW201', route: '5E', lat: 26.8667, lng: 80.9862, occupancy: 'medium', nextStop: 'Kalyanpur', routeId: 'route5E', speed: 27, eta: 6 },
+            { id: 11, busNumber: 'UP32078', route: '1A', lat: 26.8967, lng: 80.9262, occupancy: 'low', nextStop: 'Aliganj Metro', routeId: 'route1A', speed: 34, eta: 4 },
+            { id: 12, busNumber: 'BR01234', route: '1A', lat: 26.8267, lng: 80.9362, occupancy: 'medium', nextStop: 'Qaiserbagh', routeId: 'route1A', speed: 26, eta: 7 },
+            { id: 13, busNumber: 'UP32156', route: '2B', lat: 26.8867, lng: 80.9462, occupancy: 'high', nextStop: 'Mahanagar Extension', routeId: 'route2B', speed: 24, eta: 9 },
+            { id: 14, busNumber: 'DL1P789', route: '2B', lat: 26.8567, lng: 81.0162, occupancy: 'low', nextStop: 'Gomti Nagar Metro', routeId: 'route2B', speed: 36, eta: 3 },
+            { id: 15, busNumber: 'HR38345', route: '3C', lat: 26.8967, lng: 81.0162, occupancy: 'medium', nextStop: 'Gomti Nagar Extension', routeId: 'route3C', speed: 28, eta: 5 }
+        ];
+
+        // All searchable items (buses, routes, stops)
+        const searchableItems = [
+            // Bus numbers
+            ...busFleet.map(bus => ({ type: 'bus', value: bus, label: `Bus ${bus}` })),
+            // Routes
+            ...busRoutes.map(route => ({ type: 'route', value: route.id, label: route.name })),
+            // Bus stops
+            ...busStops.map(stop => ({ type: 'stop', value: stop.id, label: stop.name }))
+        ];
+
+        // Search functionality
+        function performSearch(query) {
+            if (!query || query.length < 2) return [];
+            
+            const lowerQuery = query.toLowerCase();
+            const results = searchableItems.filter(item => 
+                item.label.toLowerCase().includes(lowerQuery) ||
+                item.value.toString().toLowerCase().includes(lowerQuery)
+            ).slice(0, 10); // Limit to 10 results
+            
+            return results;
+        }
+
+        function displaySearchSuggestions(results, inputElement) {
+            const suggestionContainer = document.getElementById('searchSuggestions');
+            
+            if (results.length === 0) {
+                suggestionContainer.classList.add('hidden');
+                return;
+            }
+            
+            const suggestionsList = results.map(result => {
+                const icon = result.type === 'bus' ? '🚌' : result.type === 'route' ? '🛣️' : '📍';
+                return `
+                    <div class="p-3 hover:bg-primary-50 cursor-pointer border-b border-border last:border-b-0 search-suggestion" 
+                         data-type="${result.type}" 
+                         data-value="${result.value}">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">${icon}</span>
+                            <div>
+                                <div class="font-medium text-text-primary">${result.label}</div>
+                                <div class="text-xs text-text-secondary capitalize">${result.type}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            suggestionContainer.innerHTML = `<div class="p-2 text-sm text-text-secondary border-b border-border">Search Results</div>${suggestionsList}`;
+            suggestionContainer.classList.remove('hidden');
+            
+            // Add click handlers to suggestions
+            suggestionContainer.querySelectorAll('.search-suggestion').forEach(suggestion => {
+                suggestion.addEventListener('click', () => {
+                    const type = suggestion.dataset.type;
+                    const value = suggestion.dataset.value;
+                    handleSearchSelection(type, value);
+                    suggestionContainer.classList.add('hidden');
+                    inputElement.value = '';
+                });
+            });
+        }
+
+        function handleSearchSelection(type, value) {
+            if (type === 'bus') {
+                highlightBus(value);
+            } else if (type === 'route') {
+                highlightRoute(value);
+            } else if (type === 'stop') {
+                highlightStop(parseInt(value));
+            }
+        }
+
+        function highlightBus(busNumber) {
+            const bus = liveBuses.find(b => b.busNumber === busNumber);
+            if (bus) {
+                map.setView([bus.lat, bus.lng], 16);
+                // Trigger click on the bus marker (simulated)
+                showBusInfo(bus);
+            }
+        }
+
+        function highlightStop(stopId) {
+            const stop = busStops.find(s => s.id === stopId);
+            if (stop) {
+                map.setView([stop.lat, stop.lng], 16);
+                showStopInfo(stop);
+            }
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            const searchButton = document.getElementById('searchButton');
+            const mobileSearchButton = document.getElementById('mobileSearchButton');
+            
+            // Desktop search
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const results = performSearch(e.target.value);
+                    displaySearchSuggestions(results, searchInput);
+                });
+                
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const results = performSearch(e.target.value);
+                        if (results.length > 0) {
+                            handleSearchSelection(results[0].type, results[0].value);
+                            document.getElementById('searchSuggestions').classList.add('hidden');
+                            e.target.value = '';
+                        }
+                    }
+                });
+            }
+            
+            if (searchButton) {
+                searchButton.addEventListener('click', () => {
+                    const results = performSearch(searchInput.value);
+                    if (results.length > 0) {
+                        handleSearchSelection(results[0].type, results[0].value);
+                        document.getElementById('searchSuggestions').classList.add('hidden');
+                        searchInput.value = '';
+                    }
+                });
+            }
+            
+            // Mobile search
+            if (mobileSearchInput) {
+                mobileSearchInput.addEventListener('input', (e) => {
+                    const results = performSearch(e.target.value);
+                    // For mobile, we can show results in the bottom panel
+                    if (results.length > 0) {
+                        showSearchResults(results);
+                    }
+                });
+                
+                mobileSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const results = performSearch(e.target.value);
+                        if (results.length > 0) {
+                            handleSearchSelection(results[0].type, results[0].value);
+                            e.target.value = '';
+                        }
+                    }
+                });
+            }
+            
+            if (mobileSearchButton) {
+                mobileSearchButton.addEventListener('click', () => {
+                    const results = performSearch(mobileSearchInput.value);
+                    if (results.length > 0) {
+                        handleSearchSelection(results[0].type, results[0].value);
+                        mobileSearchInput.value = '';
+                    }
+                });
+            }
+        }
+
+        function showSearchResults(results) {
+            const searchResultsContainer = document.getElementById('searchResults');
+            const searchResultsList = document.getElementById('searchResultsList');
+            
+            if (results.length === 0) {
+                searchResultsContainer.classList.add('hidden');
+                return;
+            }
+            
+            const resultsHTML = results.map(result => {
+                const icon = result.type === 'bus' ? '🚌' : result.type === 'route' ? '🛣️' : '📍';
+                return `
+                    <div class="card p-3 cursor-pointer hover:bg-primary-50 transition-smooth search-result"
+                         data-type="${result.type}" 
+                         data-value="${result.value}">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">${icon}</span>
+                            <div>
+                                <div class="font-medium text-text-primary">${result.label}</div>
+                                <div class="text-xs text-text-secondary capitalize">${result.type}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            searchResultsList.innerHTML = resultsHTML;
+            searchResultsContainer.classList.remove('hidden');
+            
+            // Add click handlers
+            searchResultsList.querySelectorAll('.search-result').forEach(result => {
+                result.addEventListener('click', () => {
+                    handleSearchSelection(result.dataset.type, result.dataset.value);
+                    searchResultsContainer.classList.add('hidden');
+                });
+            });
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            const suggestionsContainer = document.getElementById('searchSuggestions');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (suggestionsContainer && searchInput && 
+                !suggestionsContainer.contains(e.target) && 
+                !searchInput.contains(e.target)) {
+                suggestionsContainer.classList.add('hidden');
+            }
+        });
+
+        // User authentication check
+        function checkUserAuth() {
+            const user = localStorage.getItem('busTrackerUser');
+            const loggedInState = document.getElementById('loggedInState');
+            const loggedOutState = document.getElementById('loggedOutState');
+            const userName = document.getElementById('userName');
+            const userInitials = document.getElementById('userInitials');
+            const mobileUserActions = document.getElementById('mobileUserActions');
+            
+            if (user) {
+                const userData = JSON.parse(user);
+                loggedOutState.classList.add('hidden');
+                loggedInState.classList.remove('hidden');
+                mobileUserActions.classList.remove('hidden');
+                
+                userName.textContent = userData.name;
+                userInitials.textContent = userData.name.charAt(0).toUpperCase();
+            } else {
+                loggedOutState.classList.remove('hidden');
+                loggedInState.classList.add('hidden');
+                mobileUserActions.classList.add('hidden');
+            }
+        }
+
+        // Logout functionality
+        function setupLogout() {
+            const logoutButton = document.getElementById('logoutButton');
+            const mobileLogoutButton = document.getElementById('mobileLogoutButton');
+            
+            const handleLogout = () => {
+                localStorage.removeItem('busTrackerUser');
+                window.location.reload();
+            };
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+            
+            if (mobileLogoutButton) {
+                mobileLogoutButton.addEventListener('click', handleLogout);
+            }
+        }
+
+        // Draw bus routes as colored polylines
+        const routeLines = {};
+        busRoutes.forEach(route => {
+            const polyline = L.polyline(route.coordinates, {
+                color: route.color,
+                weight: 4,
+                opacity: 0.8,
+                smoothFactor: 1
+            }).addTo(map);
+            
+            routeLines[route.id] = polyline;
+            
+            // Add route popup with bus information
+            polyline.bindPopup(`
+                <div class="font-medium text-text-primary mb-2">${route.name}</div>
+                <div class="text-sm text-text-secondary mb-2">Active Buses:</div>
+                <div class="flex flex-wrap gap-1 mb-2">
+                    ${route.buses.map(bus => 
+                        `<span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded cursor-pointer hover:bg-primary-200" onclick="highlightBus('${bus}')">${bus}</span>`
+                    ).join('')}
+                </div>
+                <div class="text-xs text-text-secondary">Click bus numbers to track</div>
+            `);
+        });
+
+        // Add blue pin markers for bus stops
+        busStops.forEach(stop => {
+            const stopIcon = L.divIcon({
+                html: `
+                    <div class="relative">
+                        <svg width="20" height="28" viewBox="0 0 20 28" class="drop-shadow-md">
+                            <path d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 18 10 18s10-10.5 10-18c0-5.5-4.5-10-10-10z" fill="#3B82F6"/>
+                            <circle cx="10" cy="10" r="4" fill="white"/>
+                        </svg>
+                    </div>
+                `,
+                className: 'bus-stop-marker',
+                iconSize: [20, 28],
+                iconAnchor: [10, 28],
+                popupAnchor: [0, -28]
+            });
+
+            const marker = L.marker([stop.lat, stop.lng], { icon: stopIcon }).addTo(map);
+            
+            marker.bindPopup(`
+                <div class="min-w-[200px]">
+                    <h3 class="font-semibold text-text-primary mb-2">${stop.name}</h3>
+                    <div class="mb-2">
+                        <div class="text-sm text-text-secondary mb-1">Routes:</div>
+                        <div class="flex flex-wrap gap-1 mb-2">
+                            ${stop.routes.map(route => 
+                                `<span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded">${route}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="text-sm text-text-secondary mb-1">Buses at this stop:</div>
+                        <div class="flex flex-wrap gap-1">
+                            ${stop.buses.map(bus => 
+                                `<span class="px-2 py-1 bg-secondary-100 text-secondary text-xs font-medium rounded cursor-pointer hover:bg-secondary-200" onclick="highlightBus('${bus}')">${bus}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="text-xs text-text-secondary">
+                        Next buses: 2min, 8min, 15min
+                    </div>
+                </div>
+            `);
+            
+            marker.on('click', () => showStopInfo(stop));
+        });
+
+        // Add enhanced orange bus icons for live bus positions
+        liveBuses.forEach(bus => {
+            const busIcon = L.divIcon({
+                html: `
+                    <div class="relative bus-marker" data-bus="${bus.busNumber}">
+                        <svg width="28" height="28" viewBox="0 0 28 28" class="drop-shadow-lg">
+                            <!-- Bus body -->
+                            <rect x="2" y="8" width="24" height="12" rx="2" fill="#F97316" stroke="white" stroke-width="1"/>
+                            <!-- Windows -->
+                            <rect x="4" y="10" width="4" height="2" fill="white" opacity="0.9"/>
+                            <rect x="10" y="10" width="4" height="2" fill="white" opacity="0.9"/>
+                            <rect x="16" y="10" width="4" height="2" fill="white" opacity="0.9"/>
+                            <rect x="22" y="10" width="2" height="2" fill="white" opacity="0.9"/>
+                            <!-- Wheels -->
+                            <circle cx="8" cy="22" r="2.5" fill="#374151"/>
+                            <circle cx="20" cy="22" r="2.5" fill="#374151"/>
+                            <!-- Route number background -->
+                            <rect x="10" y="14" width="8" height="4" rx="1" fill="white" opacity="0.9"/>
+                            <!-- Route number -->
+                            <text x="14" y="17" text-anchor="middle" fill="#F97316" font-size="6" font-weight="bold">${bus.route}</text>
+                        </svg>
+                        <!-- Bus number label -->
+                        <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white text-xs font-bold px-1 py-0.5 rounded shadow-md text-orange-600 whitespace-nowrap">
+                            ${bus.busNumber}
+                        </div>
+                    </div>
+                `,
+                className: 'enhanced-bus-marker',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14]
+            });
+
+            const marker = L.marker([bus.lat, bus.lng], { icon: busIcon }).addTo(map);
+            
+            const occupancyColor = bus.occupancy === 'low' ? '#10B981' : 
+                                 bus.occupancy === 'medium' ? '#F59E0B' : '#EF4444';
+            
+            marker.bindPopup(`
+                <div class="min-w-[220px]">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="font-semibold text-text-primary">Bus ${bus.busNumber}</h3>
+                            <p class="text-sm text-text-secondary">Route ${bus.route}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full" 
+                              style="background-color: ${occupancyColor}20; color: ${occupancyColor}">
+                            ${bus.occupancy.toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                        <div>
+                            <div class="text-text-secondary">Next Stop</div>
+                            <div class="font-medium text-text-primary">${bus.nextStop}</div>
+                        </div>
+                        <div>
+                            <div class="text-text-secondary">ETA</div>
+                            <div class="font-medium text-success">${bus.eta} min</div>
+                        </div>
+                        <div>
+                            <div class="text-text-secondary">Speed</div>
+                            <div class="font-medium text-text-primary">${bus.speed} km/h</div>
+                        </div>
+                        <div>
+                            <div class="text-text-secondary">Occupancy</div>
+                            <div class="font-medium" style="color: ${occupancyColor}">${bus.occupancy}</div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="btn-primary flex-1 py-2 text-sm" onclick="highlightRoute('${bus.routeId}')">View Route</button>
+                        <button class="btn-secondary flex-1 py-2 text-sm" onclick="trackBus('${bus.busNumber}')">Track Bus</button>
+                    </div>
+                </div>
+            `);
+            
+            marker.on('click', () => showBusInfo(bus));
+        });
+
+        // Quick bus buttons functionality
+        function setupQuickBusButtons() {
+            const quickBusButtons = document.querySelectorAll('.quick-bus-btn');
+            quickBusButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const busNumber = button.dataset.bus;
+                    highlightBus(busNumber);
+                });
+            });
+        }
+
+        // Filter chips functionality
+        function setupFilterChips() {
+            const filterChips = document.querySelectorAll('.filter-chip');
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    // Reset all chips
+                    filterChips.forEach(c => {
+                        c.classList.remove('bg-primary', 'text-white');
+                        c.classList.add('bg-background', 'text-text-secondary', 'border', 'border-border');
+                    });
+                    
+                    // Activate clicked chip
+                    chip.classList.remove('bg-background', 'text-text-secondary', 'border', 'border-border');
+                    chip.classList.add('bg-primary', 'text-white');
+                    
+                    const filter = chip.dataset.filter;
+                    applyFilter(filter);
+                });
+            });
+        }
+
+        function applyFilter(filter) {
+            if (filter === 'all') {
+                // Show all routes and buses
+                Object.values(routeLines).forEach(line => {
+                    line.setStyle({ opacity: 0.8 });
+                });
+            } else if (filter === 'nearby') {
+                // Highlight nearby stops (simplified)
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        map.setView([userLat, userLng], 15);
+                    });
+                }
+            } else if (filter === 'express') {
+                // Highlight express routes
+                Object.entries(routeLines).forEach(([routeId, line]) => {
+                    if (routeId.includes('A') || routeId.includes('D')) {
+                        line.setStyle({ opacity: 1, weight: 6 });
+                    } else {
+                        line.setStyle({ opacity: 0.3, weight: 3 });
+                    }
+                });
+            } else {
+                // Filter by specific bus number
+                highlightBus(filter);
+            }
+        }
+
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const closeMenu = document.getElementById('closeMenu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            setTimeout(() => {
+                mobileMenuPanel.classList.remove('-translate-x-full');
+            }, 10);
+        });
+
+        closeMenu.addEventListener('click', closeMobileMenu);
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) closeMobileMenu();
+        });
+
+        function closeMobileMenu() {
+            mobileMenuPanel.classList.add('-translate-x-full');
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+            }, 300);
+        }
+
+        // Bottom panel functionality
+        const bottomPanel = document.getElementById('bottomPanel');
+        let panelOpen = false;
+
+        function showBusInfo(bus) {
+            const occupancyColor = bus.occupancy === 'low' ? '#10B981' : 
+                                 bus.occupancy === 'medium' ? '#F59E0B' : '#EF4444';
+            
+            const content = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-text-primary">Bus ${bus.busNumber}</h3>
+                            <p class="text-sm text-text-secondary">Route ${bus.route}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full" style="background-color: ${occupancyColor}20; color: ${occupancyColor}">
+                            ${bus.occupancy.toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-text-secondary">Next Stop</div>
+                            <div class="font-medium text-text-primary">${bus.nextStop}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-text-secondary">ETA</div>
+                            <div class="font-medium text-success">${bus.eta} min</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-text-secondary">Speed</div>
+                            <div class="font-medium text-text-primary">${bus.speed} km/h</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-text-secondary">Occupancy</div>
+                            <div class="font-medium" style="color: ${occupancyColor}">${bus.occupancy}</div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="btn-primary flex-1 py-2" onclick="highlightRoute('${bus.routeId}')">View Route</button>
+                        <button class="btn-secondary flex-1 py-2" onclick="trackBus('${bus.busNumber}')">Track Bus</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('panelContent').innerHTML = content;
+            if (window.innerWidth < 1024) {
+                bottomPanel.classList.remove('translate-y-full');
+                panelOpen = true;
+            } else {
+                const selectedInfo = document.getElementById('selectedInfo');
+                selectedInfo.innerHTML = content;
+                selectedInfo.classList.remove('hidden');
+            }
+        }
+
+        function showStopInfo(stop) {
+            const content = `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-text-primary">${stop.name}</h3>
+                    <div>
+                        <div class="text-sm text-text-secondary mb-2">Available Routes</div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            ${stop.routes.map(route => 
+                                `<span class="px-2 py-1 bg-primary-100 text-primary text-xs font-medium rounded cursor-pointer hover:bg-primary-200" onclick="highlightRoute('route${route}')">${route}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-text-secondary mb-2">Buses at this stop</div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            ${stop.buses.map(bus => 
+                                `<span class="px-2 py-1 bg-secondary-100 text-secondary text-xs font-medium rounded cursor-pointer hover:bg-secondary-200" onclick="highlightBus('${bus}')">${bus}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="text-sm font-medium text-text-primary">Next Arrivals</h4>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-secondary">Bus ${stop.buses[0]}</span>
+                                <span class="text-sm font-medium text-success">2 min</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-secondary">Bus ${stop.buses[1] || stop.buses[0]}</span>
+                                <span class="text-sm font-medium text-warning">8 min</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-text-secondary">Bus ${stop.buses[0]}</span>
+                                <span class="text-sm font-medium text-text-secondary">15 min</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary w-full py-2">Get Directions</button>
+                </div>
+            `;
+            
+            document.getElementById('panelContent').innerHTML = content;
+            if (window.innerWidth < 1024) {
+                bottomPanel.classList.remove('translate-y-full');
+                panelOpen = true;
+            }
+        }
+
+        // Route highlighting functionality
+        function highlightRoute(routeId) {
+            // Reset all routes to normal opacity
+            Object.values(routeLines).forEach(line => {
+                line.setStyle({ opacity: 0.3, weight: 3 });
+            });
+            
+            // Highlight selected route
+            if (routeLines[routeId]) {
+                routeLines[routeId].setStyle({ opacity: 1, weight: 6 });
+                map.fitBounds(routeLines[routeId].getBounds(), { padding: [20, 20] });
+            }
+            
+            // Reset after 5 seconds
+            setTimeout(() => {
+                Object.values(routeLines).forEach(line => {
+                    line.setStyle({ opacity: 0.8, weight: 4 });
+                });
+            }, 5000);
+        }
+
+        // Track bus functionality
+        function trackBus(busNumber) {
+            const bus = liveBuses.find(b => b.busNumber === busNumber);
+            if (bus) {
+                map.setView([bus.lat, bus.lng], 16);
+                // Add tracking indicator
+                const trackingIndicator = L.marker([bus.lat, bus.lng], {
+                    icon: L.divIcon({
+                        html: `
+                            <div class="absolute w-16 h-16 bg-primary bg-opacity-20 rounded-full animate-ping"></div>
+                            <div class="absolute w-8 h-8 bg-primary bg-opacity-40 rounded-full animate-pulse"></div>
+                        `,
+                        className: 'tracking-indicator',
+                        iconSize: [64, 64],
+                        iconAnchor: [32, 32]
+                    })
+                }).addTo(map);
+                
+                // Remove tracking indicator after 3 seconds
+                setTimeout(() => {
+                    map.removeLayer(trackingIndicator);
+                }, 3000);
+                
+                showMessage(`Now tracking Bus ${busNumber}`, 'success');
+            }
+        }
+
+        // Utility function to show messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform ${
+                type === 'success' ? 'bg-success text-white' : 'bg-error text-white'
+            }`;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 300);
+            }, 3000);
+        }
+
+        // Location functionality
+        document.getElementById('locateBtn').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 16);
+                    
+                    L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            html: `
+                                <div class="w-4 h-4 bg-primary rounded-full border-2 border-white shadow-md pulse-animation"></div>
+                                <style>
+                                    .pulse-animation {
+                                        animation: pulse 2s infinite;
+                                    }
+                                    @keyframes pulse {
+                                        0% { transform: scale(1); opacity: 1; }
+                                        50% { transform: scale(1.2); opacity: 0.7; }
+                                        100% { transform: scale(1); opacity: 1; }
+                                    }
+                                </style>
+                            `,
+                            className: 'user-location-marker',
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        })
+                    }).addTo(map).bindPopup('Your Location');
+                });
+            }
+        });
+
+        document.getElementById('fabLocation').addEventListener('click', () => {
+            document.getElementById('locateBtn').click();
+        });
+
+        // Refresh functionality
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            const indicator = document.getElementById('loadingIndicator');
+            indicator.classList.remove('hidden');
+            
+            // Simulate bus position updates
+            setTimeout(() => {
+                liveBuses.forEach((bus) => {
+                    const randomOffset = 0.002;
+                    bus.lat += (Math.random() - 0.5) * randomOffset;
+                    bus.lng += (Math.random() - 0.5) * randomOffset;
+                    bus.speed = Math.floor(Math.random() * 20) + 20; // Random speed 20-40
+                    bus.eta = Math.floor(Math.random() * 10) + 1; // Random ETA 1-10 min
+                });
+                
+                // Update bus count
+                document.getElementById('activeBusCount').textContent = liveBuses.length;
+                
+                indicator.classList.add('hidden');
+                showMessage('Bus positions updated!', 'success');
+            }, 2000);
+        });
+
+        // Close bottom panel on map click
+        map.on('click', () => {
+            if (panelOpen && window.innerWidth < 1024) {
+                bottomPanel.classList.add('translate-y-full');
+                panelOpen = false;
+            }
+        });
+
+        // Auto-update bus positions every 30 seconds
+        setInterval(() => {
+            document.getElementById('refreshBtn').click();
+        }, 30000);
+
+        // Initialize view to show all routes
+        const allRouteCoordinates = busRoutes.flatMap(route => route.coordinates);
+        if (allRouteCoordinates.length > 0) {
+            const group = new L.featureGroup(Object.values(routeLines));
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+
+        // Add enhanced legend for route colors
+        const legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function() {
+            const div = L.DomUtil.create('div', 'map-legend bg-white p-3 rounded-lg shadow-md text-xs max-w-xs');
+            div.innerHTML = `
+                <h4 class="font-semibold mb-2 text-text-primary">Bus Routes & Numbers</h4>
+                ${busRoutes.map(route => `
+                    <div class="flex items-center justify-between mb-2 p-2 hover:bg-gray-50 rounded cursor-pointer" onclick="highlightRoute('${route.id}')">
+                        <div class="flex items-center">
+                            <div class="w-4 h-1 mr-2 rounded" style="background-color: ${route.color}"></div>
+                            <span class="text-text-secondary">${route.name.split(' - ')[0]}</span>
+                        </div>
+                        <div class="text-xs text-text-secondary">${route.buses.length} buses</div>
+                    </div>
+                `).join('')}
+                <div class="border-t pt-2 mt-2">
+                    <div class="text-xs text-text-secondary">🚌 Orange icons = Live buses</div>
+                    <div class="text-xs text-text-secondary">📍 Blue pins = Bus stops</div>
+                </div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
+        // Initialize all functionalities
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUserAuth();
+            setupLogout();
+            setupSearch();
+            setupQuickBusButtons();
+            setupFilterChips();
+        });
+
+        // Make functions globally available for onclick handlers
+        window.highlightBus = highlightBus;
+        window.highlightRoute = highlightRoute;
+        window.trackBus = trackBus;
+        window.highlightStop = highlightStop;
+    </script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Registration - Lucknow Bus Tracker</title>
+    <link rel="stylesheet" href="../css/main.css" />
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Flucknowbu5210back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background font-inter min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface border-b border-border shadow-sm">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- Back Button & Logo -->
+                <div class="flex items-center space-x-3">
+                    <a href="live_bus_map_dashboard.html" class="touch-target p-2 -ml-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10z"/>
+                            </svg>
+                        </div>
+                        <div class="hidden sm:block">
+                            <h1 class="text-lg font-semibold text-text-primary">Lucknow Bus Tracker</h1>
+                            <p class="text-xs text-text-secondary">Create Your Account</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language Toggle -->
+                <button id="languageToggle" class="touch-target px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth border border-border rounded-lg">
+                    EN | हिं
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4 py-8">
+        <div class="w-full max-w-md">
+            <!-- Welcome Section -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-text-primary mb-2" id="welcomeTitle">Welcome to Lucknow Bus Tracker</h1>
+                <p class="text-text-secondary" id="welcomeSubtitle">Create your account to access personalized features and real-time bus tracking</p>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between text-xs text-text-secondary mb-2">
+                    <span id="stepIndicator">Step 1 of 2</span>
+                    <span id="progressText">Account Details</span>
+                </div>
+                <div class="w-full bg-border-light rounded-full h-1">
+                    <div id="progressBar" class="bg-primary h-1 rounded-full transition-all duration-300" style="width: 50%"></div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <form id="registrationForm" class="space-y-4">
+                    <!-- Step 1: Account Details -->
+                    <div id="step1" class="registration-step">
+                        <!-- Full Name -->
+                        <div class="space-y-1">
+                            <label for="fullName" class="block text-sm font-medium text-text-primary">
+                                Full Name <span class="text-error">*</span>
+                            </label>
+                            <input type="text" id="fullName" name="fullName" required class="input-field w-full" placeholder="Enter your full name" />
+                            <div class="text-xs text-error hidden" id="fullNameError"></div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="space-y-1">
+                            <label for="email" class="block text-sm font-medium text-text-primary">
+                                Email Address <span class="text-error">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" required class="input-field w-full" placeholder="Enter your email address" />
+                            <div class="text-xs text-error hidden" id="emailError"></div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="space-y-1">
+                            <label for="phone" class="block text-sm font-medium text-text-primary">
+                                Phone Number <span class="text-error">*</span>
+                            </label>
+                            <div class="flex">
+                                <div class="flex items-center px-3 bg-background border border-r-0 border-border rounded-l-lg text-sm text-text-secondary">
+                                    +91
+                                </div>
+                                <input type="tel" id="phone" name="phone" required class="input-field flex-1 rounded-l-none border-l-0" placeholder="Enter 10-digit mobile number" maxlength="10" />
+                            </div>
+                            <div class="text-xs text-error hidden" id="phoneError"></div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="space-y-1">
+                            <label for="password" class="block text-sm font-medium text-text-primary">
+                                Password <span class="text-error">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="password" name="password" required class="input-field w-full pr-10" placeholder="Create a strong password" />
+                                <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary">
+                                    <svg class="w-5 h-5" id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Password Strength Indicator -->
+                            <div class="space-y-1">
+                                <div class="flex space-x-1">
+                                    <div class="h-1 flex-1 rounded-full bg-border-light">
+                                        <div id="strengthBar1" class="h-1 rounded-full bg-error transition-colors duration-200"></div>
+                                    </div>
+                                    <div class="h-1 flex-1 rounded-full bg-border-light">
+                                        <div id="strengthBar2" class="h-1 rounded-full transition-colors duration-200"></div>
+                                    </div>
+                                    <div class="h-1 flex-1 rounded-full bg-border-light">
+                                        <div id="strengthBar3" class="h-1 rounded-full transition-colors duration-200"></div>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-text-secondary" id="passwordStrength">Password strength: Weak</div>
+                            </div>
+                            <div class="text-xs text-error hidden" id="passwordError"></div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="space-y-1">
+                            <label for="confirmPassword" class="block text-sm font-medium text-text-primary">
+                                Confirm Password <span class="text-error">*</span>
+                            </label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required class="input-field w-full" placeholder="Re-enter your password" />
+                            <div class="text-xs text-error hidden" id="confirmPasswordError"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Preferences & Location -->
+                    <div id="step2" class="registration-step hidden">
+                        <!-- Language Preference -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-text-primary">
+                                Preferred Language <span class="text-error">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center p-3 border border-border rounded-lg cursor-pointer hover:bg-primary-50 transition-smooth">
+                                    <input type="radio" name="language" value="english" class="w-4 h-4 text-primary border-border focus:ring-primary-200" required />
+                                    <div class="ml-3">
+                                        <div class="font-medium text-text-primary">English</div>
+                                        <div class="text-xs text-text-secondary">Navigate in English</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center p-3 border border-border rounded-lg cursor-pointer hover:bg-primary-50 transition-smooth">
+                                    <input type="radio" name="language" value="hindi" class="w-4 h-4 text-primary border-border focus:ring-primary-200" required />
+                                    <div class="ml-3">
+                                        <div class="font-medium text-text-primary">हिंदी</div>
+                                        <div class="text-xs text-text-secondary">हिंदी में नेविगेट करें</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Location Permission -->
+                        <div class="space-y-3">
+                            <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-text-primary mb-1">Enable Location Services</h3>
+                                        <p class="text-sm text-text-secondary mb-3">
+                                            Allow location access to get personalized route suggestions, nearby bus stops, and accurate arrival times based on your current location.
+                                        </p>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" id="locationPermission" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                                            <span class="text-sm font-medium text-text-primary">I agree to share my location</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Preferences -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-text-primary">
+                                Notification Preferences
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center justify-between p-3 bg-background rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-text-primary">Bus Arrival Alerts</div>
+                                        <div class="text-xs text-text-secondary">Get notified when your bus is approaching</div>
+                                    </div>
+                                    <input type="checkbox" name="notifications[]" value="arrival" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" checked />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-background rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-text-primary">Service Updates</div>
+                                        <div class="text-xs text-text-secondary">Route changes and service disruptions</div>
+                                    </div>
+                                    <input type="checkbox" name="notifications[]" value="updates" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" checked />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-background rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-text-primary">Daily Summary</div>
+                                        <div class="text-xs text-text-secondary">Your daily travel summary and tips</div>
+                                    </div>
+                                    <input type="checkbox" name="notifications[]" value="summary" class="w-4 h-4 text-primary border-border rounded focus:ring-primary-200" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" id="backBtn" class="hidden flex-1 px-4 py-3 border border-border text-text-secondary rounded-lg font-medium hover:bg-surface transition-smooth">
+                            Back
+                        </button>
+                        <button type="button" id="nextBtn" class="flex-1 px-4 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-600 transition-smooth">
+                            Continue
+                        </button>
+                        <button type="submit" id="submitBtn" class="hidden flex-1 px-4 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-600 transition-smooth">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Social Registration -->
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-border"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-background text-text-secondary">Or continue with</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <button type="button" class="flex items-center justify-center px-4 py-2 border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-surface transition-smooth">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button type="button" class="flex items-center justify-center px-4 py-2 border border-border rounded-lg text-sm font-medium text-text-secondary hover:bg-surface transition-smooth">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                    </button>
+                </div>
+            </div>
+
+            <!-- Terms and Login Link -->
+            <div class="mt-6 space-y-4 text-center">
+                <p class="text-xs text-text-secondary">
+                    By creating an account, you agree to our 
+                    <a href="#" class="text-primary hover:text-primary-600 font-medium">Terms of Service</a> and 
+                    <a href="#" class="text-primary hover:text-primary-600 font-medium">Privacy Policy</a>
+                </p>
+                <p class="text-sm text-text-secondary">
+                    Already have an account? 
+                    <a href="#" onclick="showQuickLogin()" class="text-primary hover:text-primary-600 font-medium">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-xl w-full max-w-md p-6 text-center">
+            <div class="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">Account Created!</h2>
+            <p class="text-text-secondary mb-6">Welcome to Lucknow Bus Tracker! Please check your email to verify your account.</p>
+            <button onclick="completeRegistration()" class="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                Continue to App
+            </button>
+        </div>
+    </div>
+
+    <style>
+        .registration-step {
+            @apply space-y-4;
+        }
+        .input-field {
+            @apply px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary transition-smooth;
+        }
+        .input-field:focus {
+            @apply outline-none;
+        }
+        .transition-smooth {
+            @apply transition-all duration-200;
+        }
+        .touch-target {
+            @apply min-w-[44px] min-h-[44px] flex items-center justify-center;
+        }
+    </style>
+
+    <script>
+        let currentStep = 1;
+        let formData = {};
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            setupPasswordValidation();
+            setupPhoneValidation();
+        });
+
+        function setupEventListeners() {
+            // Step navigation
+            document.getElementById('nextBtn').addEventListener('click', handleNext);
+            document.getElementById('backBtn').addEventListener('click', handleBack);
+            document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+            
+            // Form submission
+            document.getElementById('registrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleSubmit();
+            });
+            
+            // Password toggle
+            document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
+            
+            // Language toggle
+            document.getElementById('languageToggle').addEventListener('click', toggleLanguage);
+            
+            // Real-time validation
+            setupRealTimeValidation();
+        }
+
+        function setupRealTimeValidation() {
+            const inputs = ['fullName', 'email', 'phone', 'password', 'confirmPassword'];
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('blur', () => validateField(inputId));
+                    input.addEventListener('input', () => clearError(inputId));
+                }
+            });
+        }
+
+        function setupPasswordValidation() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.addEventListener('input', updatePasswordStrength);
+        }
+
+        function setupPhoneValidation() {
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                // Allow only numbers
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                // Limit to 10 digits
+                if (e.target.value.length > 10) {
+                    e.target.value = e.target.value.slice(0, 10);
+                }
+            });
+        }
+
+        function updatePasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthIndicator = document.getElementById('passwordStrength');
+            const bars = [
+                document.getElementById('strengthBar1'),
+                document.getElementById('strengthBar2'),
+                document.getElementById('strengthBar3')
+            ];
+
+            // Reset bars
+            bars.forEach(bar => {
+                bar.className = 'h-1 rounded-full transition-colors duration-200';
+            });
+
+            let strength = 0;
+            let strengthText = '';
+
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            if (strength <= 2) {
+                strengthText = 'Weak';
+                bars[0].classList.add('bg-error');
+            } else if (strength <= 3) {
+                strengthText = 'Medium';
+                bars[0].classList.add('bg-warning');
+                bars[1].classList.add('bg-warning');
+            } else {
+                strengthText = 'Strong';
+                bars[0].classList.add('bg-success');
+                bars[1].classList.add('bg-success');
+                bars[2].classList.add('bg-success');
+            }
+
+            strengthIndicator.textContent = `Password strength: ${strengthText}`;
+        }
+
+        function validateField(fieldId) {
+            const field = document.getElementById(fieldId);
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            switch (fieldId) {
+                case 'fullName':
+                    if (!value) {
+                        errorMessage = 'Full name is required';
+                        isValid = false;
+                    } else if (value.length < 2) {
+                        errorMessage = 'Name must be at least 2 characters';
+                        isValid = false;
+                    }
+                    break;
+
+                case 'email':
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!value) {
+                        errorMessage = 'Email is required';
+                        isValid = false;
+                    } else if (!emailRegex.test(value)) {
+                        errorMessage = 'Please enter a valid email address';
+                        isValid = false;
+                    }
+                    break;
+
+                case 'phone':
+                    if (!value) {
+                        errorMessage = 'Phone number is required';
+                        isValid = false;
+                    } else if (value.length !== 10) {
+                        errorMessage = 'Please enter a valid 10-digit mobile number';
+                        isValid = false;
+                    }
+                    break;
+
+                case 'password':
+                    if (!value) {
+                        errorMessage = 'Password is required';
+                        isValid = false;
+                    } else if (value.length < 8) {
+                        errorMessage = 'Password must be at least 8 characters';
+                        isValid = false;
+                    }
+                    break;
+
+                case 'confirmPassword':
+                    const password = document.getElementById('password').value;
+                    if (!value) {
+                        errorMessage = 'Please confirm your password';
+                        isValid = false;
+                    } else if (value !== password) {
+                        errorMessage = 'Passwords do not match';
+                        isValid = false;
+                    }
+                    break;
+            }
+
+            showFieldError(fieldId, errorMessage, !isValid);
+            return isValid;
+        }
+
+        function showFieldError(fieldId, message, show) {
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            const field = document.getElementById(fieldId);
+
+            if (show && message) {
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                field.classList.add('border-error', 'focus:border-error', 'focus:ring-error-200');
+                field.classList.remove('border-border', 'focus:border-primary', 'focus:ring-primary-200');
+            } else {
+                errorDiv.classList.add('hidden');
+                field.classList.remove('border-error', 'focus:border-error', 'focus:ring-error-200');
+                field.classList.add('border-border', 'focus:border-primary', 'focus:ring-primary-200');
+            }
+        }
+
+        function clearError(fieldId) {
+            showFieldError(fieldId, '', false);
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const fields = ['fullName', 'email', 'phone', 'password', 'confirmPassword'];
+                let isValid = true;
+
+                fields.forEach(field => {
+                    if (!validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            } else if (step === 2) {
+                // Validate language selection
+                const languageSelected = document.querySelector('input[name="language"]:checked');
+                if (!languageSelected) {
+                    showNotification('Please select your preferred language', 'error');
+                    return false;
+                }
+                return true;
+            }
+
+            return true;
+        }
+
+        function handleNext() {
+            if (validateStep(currentStep)) {
+                if (currentStep === 1) {
+                    // Save step 1 data
+                    const formDataStep1 = new FormData(document.getElementById('registrationForm'));
+                    formData = Object.fromEntries(formDataStep1);
+                    
+                    // Move to step 2
+                    currentStep = 2;
+                    updateStepDisplay();
+                }
+            }
+        }
+
+        function handleBack() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Update progress
+            const progressBar = document.getElementById('progressBar');
+            const stepIndicator = document.getElementById('stepIndicator');
+            const progressText = document.getElementById('progressText');
+
+            if (currentStep === 1) {
+                progressBar.style.width = '50%';
+                stepIndicator.textContent = 'Step 1 of 2';
+                progressText.textContent = 'Account Details';
+                
+                // Show/hide elements
+                document.getElementById('step1').classList.remove('hidden');
+                document.getElementById('step2').classList.add('hidden');
+                document.getElementById('backBtn').classList.add('hidden');
+                document.getElementById('nextBtn').classList.remove('hidden');
+                document.getElementById('submitBtn').classList.add('hidden');
+                
+            } else if (currentStep === 2) {
+                progressBar.style.width = '100%';
+                stepIndicator.textContent = 'Step 2 of 2';
+                progressText.textContent = 'Preferences';
+                
+                // Show/hide elements
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('backBtn').classList.remove('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('submitBtn').classList.remove('hidden');
+            }
+        }
+
+        function handleSubmit() {
+            if (validateStep(currentStep)) {
+                // Collect all form data
+                const formDataStep2 = new FormData(document.getElementById('registrationForm'));
+                const completeFormData = { ...formData, ...Object.fromEntries(formDataStep2) };
+                
+                // Handle location permission
+                if (document.getElementById('locationPermission').checked) {
+                    requestLocationPermission();
+                }
+                
+                // Simulate account creation
+                simulateAccountCreation(completeFormData);
+            }
+        }
+
+        function requestLocationPermission() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        formData.location = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                    },
+                    function(error) {
+                        console.log('Location permission denied or unavailable');
+                    }
+                );
+            }
+        }
+
+        function simulateAccountCreation(userData) {
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <div class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Creating Account...
+                </div>
+            `;
+            submitBtn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                // Store user data (in real app, this would be sent to server)
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Show success modal
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function completeRegistration() {
+            // In real app, this would redirect to main app or email verification
+            window.location.href = 'live_bus_map_dashboard.html';
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3.515 3.515m6.363 6.363L21.485 21.485"/>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+            }
+        }
+
+        function toggleLanguage() {
+            const currentLang = document.getElementById('languageToggle').textContent.includes('EN') ? 'en' : 'hi';
+            
+            if (currentLang === 'en') {
+                // Switch to Hindi
+                document.getElementById('languageToggle').textContent = 'हिं | EN';
+                document.getElementById('welcomeTitle').textContent = 'लखनऊ बस ट्रैकर में आपका स्वागत है';
+                document.getElementById('welcomeSubtitle').textContent = 'व्यक्तिगत सुविधाओं और वास्तविक समय बस ट्रैकिंग का उपयोग करने के लिए अपना खाता बनाएं';
+                // Add more Hindi translations as needed
+            } else {
+                // Switch to English
+                document.getElementById('languageToggle').textContent = 'EN | हिं';
+                document.getElementById('welcomeTitle').textContent = 'Welcome to Lucknow Bus Tracker';
+                document.getElementById('welcomeSubtitle').textContent = 'Create your account to access personalized features and real-time bus tracking';
+            }
+        }
+
+        function showQuickLogin() {
+            // Redirect to login page or show login modal
+            // For now, just redirect to bus search page with login modal
+            window.location.href = 'bus_search_and_tracking.html';
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-error' : type === 'success' ? 'bg-success' : 'bg-primary';
+            
+            notification.className = `fixed top-20 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm max-w-sm`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Close success modal when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                completeRegistration();
+            }
+        });
+    </script>
+</body>
+</html>

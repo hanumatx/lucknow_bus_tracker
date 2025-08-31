@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bus Search and Tracking - Lucknow Bus Tracker</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Flucknowbu5210back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background font-inter">
+    <!-- Header Navigation -->
+    <header class="bg-surface border-b border-border shadow-sm relative z-50">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3">
+                    <a href="live_bus_map_dashboard.html" class="touch-target p-2 -ml-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                            </svg>
+                        </div>
+                        <div class="hidden sm:block">
+                            <h1 class="text-lg font-semibold text-text-primary">Bus Search & Tracking</h1>
+                            <p class="text-xs text-text-secondary">Find and track your bus</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-2">
+                    <!-- Language Toggle -->
+                    <button class="touch-target px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-smooth border border-border rounded-lg">
+                        EN | हिं
+                    </button>
+                    
+                    <!-- Voice Search Button -->
+                    <button id="voiceSearchBtn" class="touch-target p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex h-[calc(100vh-73px)]">
+        <!-- Bus List Panel -->
+        <div class="w-full lg:w-96 bg-surface border-r border-border overflow-y-auto">
+            <!-- Search Section -->
+            <div class="p-4 border-b border-border sticky top-0 bg-surface z-10">
+                <!-- Main Search Bar -->
+                <div class="relative mb-4">
+                    <input type="text" id="busSearchInput" placeholder="Search bus number..." class="w-full pl-10 pr-12 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary text-lg" autocomplete="off" />
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                        <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div id="searchSuggestions" class="absolute left-4 right-4 bg-white border border-border rounded-lg shadow-lg z-20 hidden max-h-48 overflow-y-auto"></div>
+
+                <!-- Filter Chips -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button class="filter-chip active" data-filter="all">All Buses</button>
+                    <button class="filter-chip" data-filter="active">Active</button>
+                    <button class="filter-chip" data-filter="inactive">Maintenance</button>
+                    <button class="filter-chip" data-filter="express">Express</button>
+                    <button class="filter-chip" data-filter="nearby">Nearby</button>
+                </div>
+
+                <!-- Quick Access - Recent & Frequent -->
+                <div id="quickAccess" class="mb-4">
+                    <h3 class="text-sm font-medium text-text-secondary uppercase tracking-wide mb-2">Quick Access</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="quick-access-chip" data-bus="1A">1A</button>
+                        <button class="quick-access-chip" data-bus="2B">2B</button>
+                        <button class="quick-access-chip" data-bus="5E">5E</button>
+                        <button class="quick-access-chip" data-bus="3C">3C</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bus Results List -->
+            <div id="busResultsList" class="p-4 space-y-3">
+                <!-- Bus items will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Map Container (Hidden on mobile, shown on desktop) -->
+        <div class="hidden lg:flex flex-1 relative">
+            <div id="trackingMap" class="w-full h-full"></div>
+            
+            <!-- Map Controls -->
+            <div class="absolute top-4 right-4 flex flex-col space-y-2 z-30">
+                <button id="centerMapBtn" class="touch-target bg-surface border border-border rounded-lg shadow-sm p-2 text-text-secondary hover:text-text-primary transition-smooth">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Map Modal -->
+    <div id="mobileMapModal" class="lg:hidden fixed inset-0 bg-black bg-opacity-75 z-50 hidden">
+        <div class="flex flex-col h-full">
+            <!-- Modal Header -->
+            <div class="bg-surface border-b border-border p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-text-primary" id="modalTitle">Bus Tracking</h3>
+                <button id="closeMobileMap" class="touch-target p-2 text-text-secondary hover:text-text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Modal Map -->
+            <div class="flex-1 relative">
+                <div id="mobileTrackingMap" class="w-full h-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Signup Quick Access (Floating) -->
+    <div class="fixed bottom-4 right-4 flex flex-col space-y-2 z-40">
+        <a href="user_registration.html" class="bg-primary text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium hover:bg-primary-600 transition-colors">
+            Sign Up
+        </a>
+        <a href="#" onclick="showLoginModal()" class="bg-surface border border-border text-text-primary px-4 py-2 rounded-full shadow-lg text-sm font-medium hover:bg-background transition-colors">
+            Login
+        </a>
+    </div>
+
+    <!-- Quick Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-text-primary">Quick Login</h2>
+                    <button onclick="closeLoginModal()" class="text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-1">Email or Phone</label>
+                        <input type="text" class="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary" placeholder="Enter email or phone number" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-1">Password</label>
+                        <input type="password" class="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary" placeholder="Enter password" />
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+                        Login
+                    </button>
+                </form>
+                <div class="mt-4 text-center">
+                    <a href="user_registration.html" class="text-primary hover:text-primary-600 text-sm">Don't have an account? Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .filter-chip {
+            @apply px-3 py-1.5 text-sm rounded-full border border-border text-text-secondary hover:bg-surface transition-smooth cursor-pointer;
+        }
+        .filter-chip.active {
+            @apply bg-primary text-white border-primary;
+        }
+        .quick-access-chip {
+            @apply px-3 py-1.5 text-sm rounded-lg bg-primary-100 text-primary font-medium hover:bg-primary-200 transition-smooth cursor-pointer;
+        }
+        .bus-item {
+            @apply bg-white border border-border rounded-lg p-4 cursor-pointer hover:shadow-md transition-smooth;
+        }
+        .bus-item:hover {
+            @apply border-primary-200 bg-primary-50;
+        }
+        .status-active { @apply bg-success-100 text-success-800; }
+        .status-inactive { @apply bg-error-100 text-error-800; }
+        .status-maintenance { @apply bg-warning-100 text-warning-800; }
+    </style>
+
+    <script>
+        // Comprehensive bus data with random bus numbers
+        const busDatabase = [
+            // Route 1A buses
+            { number: '1A-001', route: '1A', name: 'Jankipuram Express', from: 'Jankipuram', to: 'Alambagh', status: 'active', type: 'express', occupancy: 'medium', nextStop: 'Aliganj Metro', eta: '3 min', frequency: '8 min', lat: 26.9067, lng: 80.9262 },
+            { number: '1A-007', route: '1A', name: 'Metro Link', from: 'Jankipuram', to: 'Alambagh', status: 'active', type: 'regular', occupancy: 'low', nextStop: 'Vikas Nagar', eta: '5 min', frequency: '10 min', lat: 26.8867, lng: 80.9362 },
+            { number: '1A-015', route: '1A', name: 'City Connect', from: 'Jankipuram', to: 'Alambagh', status: 'inactive', type: 'regular', occupancy: 'high', nextStop: 'Hazratganj', eta: '2 min', frequency: '12 min', lat: 26.8467, lng: 80.9462 },
+            { number: '1A-023', route: '1A', name: 'Smart Bus', from: 'Jankipuram', to: 'Alambagh', status: 'active', type: 'express', occupancy: 'medium', nextStop: 'Qaiserbagh', eta: '7 min', frequency: '9 min', lat: 26.8267, lng: 80.9362 },
+            
+            // Route 2B buses
+            { number: '2B-003', route: '2B', name: 'Gomti Express', from: 'Gomti Nagar', to: 'Mahanagar', status: 'active', type: 'express', occupancy: 'high', nextStop: 'Indira Nagar', eta: '4 min', frequency: '7 min', lat: 26.8567, lng: 81.0162 },
+            { number: '2B-012', route: '2B', name: 'Tech City', from: 'Gomti Nagar', to: 'Mahanagar', status: 'active', type: 'regular', occupancy: 'low', nextStop: 'Kalyanpur', eta: '6 min', frequency: '11 min', lat: 26.8667, lng: 80.9862 },
+            { number: '2B-018', route: '2B', name: 'Green Line', from: 'Gomti Nagar', to: 'Mahanagar', status: 'maintenance', type: 'regular', occupancy: 'medium', nextStop: 'Vikas Nagar Ext', eta: '8 min', frequency: '13 min', lat: 26.8767, lng: 80.9662 },
+            { number: '2B-025', route: '2B', name: 'Modern Transit', from: 'Gomti Nagar', to: 'Mahanagar', status: 'active', type: 'express', occupancy: 'medium', nextStop: 'Aliganj', eta: '3 min', frequency: '8 min', lat: 26.8867, lng: 80.9462 },
+            
+            // Route 3C buses
+            { number: '3C-005', route: '3C', name: 'Heritage Route', from: 'Chinhat', to: 'Chowk', status: 'active', type: 'regular', occupancy: 'medium', nextStop: 'Gomti Nagar Ext', eta: '5 min', frequency: '15 min', lat: 26.9167, lng: 81.0462 },
+            { number: '3C-011', route: '3C', name: 'Cultural Connect', from: 'Chinhat', to: 'Chowk', status: 'active', type: 'express', occupancy: 'high', nextStop: 'Civil Lines', eta: '2 min', frequency: '10 min', lat: 26.8567, lng: 80.9762 },
+            { number: '3C-019', route: '3C', name: 'Old City', from: 'Chinhat', to: 'Chowk', status: 'inactive', type: 'regular', occupancy: 'low', nextStop: 'Hasan Ganj', eta: '9 min', frequency: '12 min', lat: 26.8367, lng: 80.9562 },
+            { number: '3C-027', route: '3C', name: 'East West Link', from: 'Chinhat', to: 'Chowk', status: 'active', type: 'regular', occupancy: 'medium', nextStop: 'Chowk Bazaar', eta: '4 min', frequency: '14 min', lat: 26.8167, lng: 80.9362 },
+            
+            // Route 4D buses
+            { number: '4D-002', route: '4D', name: 'Cantonment Special', from: 'Rajaji Puram', to: 'Cantonment', status: 'active', type: 'express', occupancy: 'low', nextStop: 'Sadat Ganj', eta: '6 min', frequency: '9 min', lat: 26.8167, lng: 80.8962 },
+            { number: '4D-009', route: '4D', name: 'Business District', from: 'Rajaji Puram', to: 'Cantonment', status: 'active', type: 'regular', occupancy: 'high', nextStop: 'GPO Chowk', eta: '3 min', frequency: '11 min', lat: 26.8367, lng: 80.9362 },
+            { number: '4D-016', route: '4D', name: 'Premium Service', from: 'Rajaji Puram', to: 'Cantonment', status: 'active', type: 'express', occupancy: 'medium', nextStop: 'Hazratganj', eta: '7 min', frequency: '8 min', lat: 26.8467, lng: 80.9562 },
+            { number: '4D-024', route: '4D', name: 'Station Link', from: 'Rajaji Puram', to: 'Cantonment', status: 'maintenance', type: 'regular', occupancy: 'low', nextStop: 'Civil Lines', eta: '5 min', frequency: '13 min', lat: 26.8567, lng: 80.9762 },
+            
+            // Route 5E buses
+            { number: '5E-004', route: '5E', name: 'South Connect', from: 'Ahmamau', to: 'Khadra', status: 'active', type: 'regular', occupancy: 'medium', nextStop: 'Alambagh Station', eta: '4 min', frequency: '12 min', lat: 26.7867, lng: 80.9162 },
+            { number: '5E-013', route: '5E', name: 'Railway Link', from: 'Ahmamau', to: 'Khadra', status: 'active', type: 'express', occupancy: 'high', nextStop: 'Charbagh', eta: '2 min', frequency: '9 min', lat: 26.8267, lng: 80.9462 },
+            { number: '5E-020', route: '5E', name: 'Inter City', from: 'Ahmamau', to: 'Khadra', status: 'active', type: 'regular', occupancy: 'low', nextStop: 'Kalyanpur', eta: '8 min', frequency: '14 min', lat: 26.8667, lng: 80.9862 },
+            { number: '5E-026', route: '5E', name: 'East Express', from: 'Ahmamau', to: 'Khadra', status: 'inactive', type: 'express', occupancy: 'medium', nextStop: 'Khadra', eta: '6 min', frequency: '10 min', lat: 26.8867, lng: 81.0062 },
+            
+            // Additional random buses
+            { number: 'X1-101', route: 'X1', name: 'Night Service', from: 'Airport', to: 'Railway Station', status: 'active', type: 'express', occupancy: 'low', nextStop: 'Amausi', eta: '12 min', frequency: '20 min', lat: 26.7600, lng: 80.8800 },
+            { number: 'AC-201', route: 'AC', name: 'Luxury Coach', from: 'IT Park', to: 'Mall', status: 'active', type: 'express', occupancy: 'high', nextStop: 'Phoenix Mall', eta: '5 min', frequency: '15 min', lat: 26.8800, lng: 81.0200 },
+            { number: 'S7-088', route: 'S7', name: 'School Special', from: 'Residential Area', to: 'Education Hub', status: 'maintenance', type: 'regular', occupancy: 'medium', nextStop: 'DPS School', eta: '7 min', frequency: '30 min', lat: 26.9200, lng: 80.9500 }
+        ];
+
+        let filteredBuses = [...busDatabase];
+        let selectedBus = null;
+        let trackingMap = null;
+        let mobileMap = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            setupEventListeners();
+            renderBusList();
+            initializeMaps();
+        });
+
+        function initializePage() {
+            // Auto-focus search input on desktop
+            if (window.innerWidth >= 1024) {
+                document.getElementById('busSearchInput').focus();
+            }
+        }
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('busSearchInput');
+            const clearSearch = document.getElementById('clearSearch');
+            const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+            
+            // Search functionality
+            searchInput.addEventListener('input', handleSearch);
+            searchInput.addEventListener('focus', showSuggestions);
+            searchInput.addEventListener('blur', () => {
+                setTimeout(hideSuggestions, 200); // Delay to allow suggestion click
+            });
+            
+            clearSearch.addEventListener('click', clearSearchInput);
+            
+            // Voice search (simplified implementation)
+            voiceSearchBtn.addEventListener('click', startVoiceSearch);
+            
+            // Filter chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => handleFilterChange(chip));
+            });
+            
+            // Quick access chips
+            document.querySelectorAll('.quick-access-chip').forEach(chip => {
+                chip.addEventListener('click', () => quickSearchBus(chip.dataset.bus));
+            });
+            
+            // Mobile map modal
+            document.getElementById('closeMobileMap').addEventListener('click', closeMobileMap);
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const clearBtn = document.getElementById('clearSearch');
+            
+            if (query) {
+                clearBtn.classList.remove('hidden');
+                filterBuses(query);
+                showSearchSuggestions(query);
+            } else {
+                clearBtn.classList.add('hidden');
+                filteredBuses = [...busDatabase];
+                hideSuggestions();
+            }
+            
+            renderBusList();
+        }
+
+        function filterBuses(query) {
+            filteredBuses = busDatabase.filter(bus => 
+                bus.number.toLowerCase().includes(query) ||
+                bus.route.toLowerCase().includes(query) ||
+                bus.name.toLowerCase().includes(query) ||
+                bus.from.toLowerCase().includes(query) ||
+                bus.to.toLowerCase().includes(query)
+            );
+        }
+
+        function showSearchSuggestions(query) {
+            if (!query) return;
+            
+            const suggestions = busDatabase
+                .filter(bus => bus.number.toLowerCase().includes(query))
+                .slice(0, 5)
+                .map(bus => bus.number);
+            
+            const uniqueSuggestions = [...new Set(suggestions)];
+            
+            if (uniqueSuggestions.length > 0) {
+                const suggestionsHtml = uniqueSuggestions
+                    .map(suggestion => `
+                        <div class="px-3 py-2 hover:bg-primary-50 cursor-pointer border-b border-border last:border-b-0" 
+                             onclick="selectSuggestion('${suggestion}')">
+                            <span class="font-medium">${suggestion}</span>
+                        </div>
+                    `)
+                    .join('');
+                
+                document.getElementById('searchSuggestions').innerHTML = suggestionsHtml;
+                document.getElementById('searchSuggestions').classList.remove('hidden');
+            }
+        }
+
+        function selectSuggestion(busNumber) {
+            document.getElementById('busSearchInput').value = busNumber;
+            hideSuggestions();
+            filterBuses(busNumber.toLowerCase());
+            renderBusList();
+        }
+
+        function showSuggestions() {
+            const query = document.getElementById('busSearchInput').value.toLowerCase().trim();
+            if (query) {
+                showSearchSuggestions(query);
+            }
+        }
+
+        function hideSuggestions() {
+            document.getElementById('searchSuggestions').classList.add('hidden');
+        }
+
+        function clearSearchInput() {
+            document.getElementById('busSearchInput').value = '';
+            document.getElementById('clearSearch').classList.add('hidden');
+            filteredBuses = [...busDatabase];
+            hideSuggestions();
+            renderBusList();
+        }
+
+        function handleFilterChange(clickedChip) {
+            // Remove active class from all chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            // Add active class to clicked chip
+            clickedChip.classList.add('active');
+            
+            const filter = clickedChip.dataset.filter;
+            applyFilter(filter);
+        }
+
+        function applyFilter(filter) {
+            const searchQuery = document.getElementById('busSearchInput').value.toLowerCase().trim();
+            
+            // Start with search filtered results or all buses
+            let buses = searchQuery ? 
+                busDatabase.filter(bus => 
+                    bus.number.toLowerCase().includes(searchQuery) ||
+                    bus.route.toLowerCase().includes(searchQuery) ||
+                    bus.name.toLowerCase().includes(searchQuery)
+                ) : [...busDatabase];
+            
+            // Apply additional filter
+            switch(filter) {
+                case 'active':
+                    filteredBuses = buses.filter(bus => bus.status === 'active');
+                    break;
+                case 'inactive':
+                    filteredBuses = buses.filter(bus => bus.status === 'maintenance');
+                    break;
+                case 'express':
+                    filteredBuses = buses.filter(bus => bus.type === 'express');
+                    break;
+                case 'nearby':
+                    // Simple proximity filter (this would normally use user location)
+                    filteredBuses = buses.slice(0, 8);
+                    break;
+                default:
+                    filteredBuses = buses;
+            }
+            
+            renderBusList();
+        }
+
+        function quickSearchBus(route) {
+            document.getElementById('busSearchInput').value = route;
+            filterBuses(route.toLowerCase());
+            renderBusList();
+        }
+
+        function startVoiceSearch() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.lang = 'hi-IN'; // Hindi first, can switch to 'en-IN'
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('busSearchInput').value = transcript;
+                    filterBuses(transcript.toLowerCase());
+                    renderBusList();
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                };
+                
+                recognition.start();
+                
+                // Visual feedback
+                const voiceBtn = document.getElementById('voiceSearchBtn');
+                voiceBtn.classList.add('text-primary');
+                setTimeout(() => voiceBtn.classList.remove('text-primary'), 3000);
+            } else {
+                alert('Voice search is not supported in your browser');
+            }
+        }
+
+        function renderBusList() {
+            const container = document.getElementById('busResultsList');
+            
+            if (filteredBuses.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.137 0-4.146.832-5.657 2.343m0 0L3.515 20.485M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-text-secondary text-lg mb-2">No buses found</p>
+                        <p class="text-text-secondary text-sm">Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const busItemsHtml = filteredBuses.map(bus => `
+                <div class="bus-item" onclick="selectBus('${bus.number}')">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h3 class="text-lg font-semibold text-text-primary">${bus.number}</h3>
+                            <p class="text-sm text-text-secondary">${bus.name}</p>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full status-${bus.status}">
+                                ${bus.status.charAt(0).toUpperCase() + bus.status.slice(1)}
+                            </span>
+                            ${bus.type === 'express' ? '<span class="text-xs text-primary font-medium mt-1">EXPRESS</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-text-secondary mb-3">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>${bus.from} → ${bus.to}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-text-secondary">Next Stop:</span>
+                            <div class="font-medium text-text-primary">${bus.nextStop}</div>
+                        </div>
+                        <div>
+                            <span class="text-text-secondary">ETA:</span>
+                            <div class="font-medium ${bus.status === 'active' ? 'text-success' : 'text-warning'}">${bus.eta}</div>
+                        </div>
+                        <div>
+                            <span class="text-text-secondary">Frequency:</span>
+                            <div class="font-medium text-text-primary">${bus.frequency}</div>
+                        </div>
+                        <div>
+                            <span class="text-text-secondary">Occupancy:</span>
+                            <div class="font-medium ${
+                                bus.occupancy === 'low' ? 'text-success' :
+                                bus.occupancy === 'medium' ? 'text-warning' : 'text-error'
+                            }">${bus.occupancy.charAt(0).toUpperCase() + bus.occupancy.slice(1)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2 mt-3">
+                        <button class="flex-1 px-3 py-2 bg-primary text-white text-sm rounded-lg font-medium hover:bg-primary-600 transition-colors"
+                                onclick="event.stopPropagation(); trackBus('${bus.number}')">
+                            Track Live
+                        </button>
+                        <button class="px-3 py-2 border border-border text-text-secondary text-sm rounded-lg hover:bg-surface transition-colors"
+                                onclick="event.stopPropagation(); saveToFavorites('${bus.number}')">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = busItemsHtml;
+        }
+
+        function selectBus(busNumber) {
+            selectedBus = busDatabase.find(bus => bus.number === busNumber);
+            if (selectedBus) {
+                // Highlight selected bus in list
+                document.querySelectorAll('.bus-item').forEach(item => {
+                    item.classList.remove('border-primary', 'bg-primary-50');
+                });
+                event.currentTarget.classList.add('border-primary', 'bg-primary-50');
+                
+                // Update map if on desktop
+                if (window.innerWidth >= 1024 && trackingMap) {
+                    showBusOnMap(selectedBus);
+                }
+            }
+        }
+
+        function trackBus(busNumber) {
+            const bus = busDatabase.find(b => b.number === busNumber);
+            if (!bus) return;
+            
+            selectedBus = bus;
+            
+            if (window.innerWidth < 1024) {
+                // Open mobile map modal
+                document.getElementById('modalTitle').textContent = `Tracking ${bus.number}`;
+                document.getElementById('mobileMapModal').classList.remove('hidden');
+                
+                // Initialize mobile map if not already done
+                if (!mobileMap) {
+                    setTimeout(() => {
+                        initializeMobileMap();
+                        showBusOnMobileMap(bus);
+                    }, 100);
+                } else {
+                    showBusOnMobileMap(bus);
+                }
+            } else {
+                // Desktop - show on main map
+                showBusOnMap(bus);
+            }
+        }
+
+        function initializeMaps() {
+            if (window.innerWidth >= 1024) {
+                // Initialize desktop map
+                trackingMap = L.map('trackingMap').setView([26.8467, 80.9462], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(trackingMap);
+            }
+        }
+
+        function initializeMobileMap() {
+            mobileMap = L.map('mobileTrackingMap').setView([26.8467, 80.9462], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mobileMap);
+        }
+
+        function showBusOnMap(bus) {
+            if (!trackingMap) return;
+            
+            // Clear previous markers
+            trackingMap.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    trackingMap.removeLayer(layer);
+                }
+            });
+            
+            // Add bus marker
+            const busIcon = L.divIcon({
+                html: `
+                    <div class="relative">
+                        <svg width="32" height="32" viewBox="0 0 24 24" class="drop-shadow-lg">
+                            <rect x="3" y="6" width="18" height="12" rx="2" fill="#F97316" stroke="white" stroke-width="1"/>
+                            <rect x="5" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="9" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="13" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="17" y="8" width="2" height="2" fill="white" opacity="0.9"/>
+                            <circle cx="7" cy="18" r="2" fill="#374151"/>
+                            <circle cx="17" cy="18" r="2" fill="#374151"/>
+                            <text x="12" y="15" text-anchor="middle" fill="white" font-size="6" font-weight="bold">${bus.route}</text>
+                        </svg>
+                    </div>
+                `,
+                className: 'bus-marker',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+            
+            const marker = L.marker([bus.lat, bus.lng], { icon: busIcon }).addTo(trackingMap);
+            
+            marker.bindPopup(`
+                <div class="min-w-[200px]">
+                    <h3 class="font-semibold text-text-primary mb-2">${bus.number} - ${bus.name}</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-text-secondary">Next Stop:</span>
+                            <span class="font-medium">${bus.nextStop}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-text-secondary">ETA:</span>
+                            <span class="font-medium text-success">${bus.eta}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-text-secondary">Status:</span>
+                            <span class="font-medium">${bus.status}</span>
+                        </div>
+                    </div>
+                </div>
+            `).openPopup();
+            
+            // Center map on bus
+            trackingMap.setView([bus.lat, bus.lng], 15);
+        }
+
+        function showBusOnMobileMap(bus) {
+            if (!mobileMap) return;
+            
+            // Clear previous markers
+            mobileMap.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    mobileMap.removeLayer(layer);
+                }
+            });
+            
+            // Add bus marker
+            const busIcon = L.divIcon({
+                html: `
+                    <div class="relative">
+                        <svg width="32" height="32" viewBox="0 0 24 24" class="drop-shadow-lg">
+                            <rect x="3" y="6" width="18" height="12" rx="2" fill="#F97316" stroke="white" stroke-width="1"/>
+                            <rect x="5" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="9" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="13" y="8" width="3" height="2" fill="white" opacity="0.9"/>
+                            <rect x="17" y="8" width="2" height="2" fill="white" opacity="0.9"/>
+                            <circle cx="7" cy="18" r="2" fill="#374151"/>
+                            <circle cx="17" cy="18" r="2" fill="#374151"/>
+                            <text x="12" y="15" text-anchor="middle" fill="white" font-size="6" font-weight="bold">${bus.route}</text>
+                        </svg>
+                    </div>
+                `,
+                className: 'bus-marker',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+            
+            const marker = L.marker([bus.lat, bus.lng], { icon: busIcon }).addTo(mobileMap);
+            
+            marker.bindPopup(`
+                <div class="min-w-[200px]">
+                    <h3 class="font-semibold text-text-primary mb-2">${bus.number} - ${bus.name}</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-text-secondary">Next Stop:</span>
+                            <span class="font-medium">${bus.nextStop}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-text-secondary">ETA:</span>
+                            <span class="font-medium text-success">${bus.eta}</span>
+                        </div>
+                    </div>
+                </div>
+            `).openPopup();
+            
+            // Center map on bus
+            mobileMap.setView([bus.lat, bus.lng], 15);
+        }
+
+        function closeMobileMap() {
+            document.getElementById('mobileMapModal').classList.add('hidden');
+        }
+
+        function saveToFavorites(busNumber) {
+            // Simple implementation - in real app, this would save to user preferences
+            const favorites = JSON.parse(localStorage.getItem('favoriteBuses') || '[]');
+            if (!favorites.includes(busNumber)) {
+                favorites.push(busNumber);
+                localStorage.setItem('favoriteBuses', JSON.stringify(favorites));
+                
+                // Show success notification
+                showNotification(`${busNumber} added to favorites!`);
+            } else {
+                showNotification(`${busNumber} is already in favorites!`);
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-success text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Login/Signup Modal Functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        // Close login modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024 && !trackingMap) {
+                initializeMaps();
+            }
+        });
+    </script>
+</body>
+</html>
